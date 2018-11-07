@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
   var Video = sequelize.define("Video", {
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
-    meta: DataType.JSONB,
+    meta: DataTypes.JSONB,
     formats: DataTypes.TEXT,
     original_filename: DataTypes.STRING,
     s3_bucket_name: DataTypes.STRING,
