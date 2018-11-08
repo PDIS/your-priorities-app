@@ -41,8 +41,16 @@
     }
 
     var language = window.locale;
+    var localePath = '/locales/{{lng}}/{{ns}}.json';
+    // var localeOverride; // This is set
+    if (typeof localeOverride !== 'undefined' && localeOverride.length > 0
+      && localeOverride !== "XlocaleOverrideX") {
+      localePath = '/locales/' + localeOverride + '/{{lng}}/{{ns}}.json';
+    }
     i18next.use(i18nextXHRBackend).
-            init({ lng: language, fallbackLng: 'en', backend: { loadPath: '/locales/{{lng}}/{{ns}}.json' } }, function(loaded) {
+            init({ lng: language, fallbackLng: 'en', backend: {
+              loadPath: localePath
+            } }, function(loaded) {
       window.i18nTranslation = i18next;
       if (typeof moment !== 'undefined' && moment ) {
         moment.locale([language, 'en']);

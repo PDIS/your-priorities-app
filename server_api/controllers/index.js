@@ -20,6 +20,7 @@ let replaceForBetterIceland = function (data) {
 let replaceForYrpri = function (data) {
   data = data.replace(/XappNameX/g, "Your Priorities");
   data = data.replace(/XdescriptionX/g, "Citizen participation application");
+  data = data.replace(/XlocaleOverrideX/g, process.env.YP_OVERRIDE_LOCALES_CLIENT_FOLDER);
   return data.replace(/XmanifestPathX/g, "manifest_yp");
 };
 

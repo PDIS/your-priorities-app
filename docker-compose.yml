@@ -19,6 +19,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=XXX
       - S3_BUCKET=my-test
       - S3_ENDPOINT=my.s3.website.com
+      - YP_OVERRIDE_LOCALES_CLIENT_FOLDER=better_news
   db:
     image: postgres
     environment:
