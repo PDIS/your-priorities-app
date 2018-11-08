@@ -23,15 +23,6 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-#ENV ENV=development 
-#ENV DEBUG=your-priorities-app 
-#ENV NODE_ENV=development
-#ENV AWS_ACCESS_KEY_ID=XXX
-#ENV AWS_SECRET_ACCESS_KEY=XXX
-#ENV S3_BUCKET=my-test
-#ENV S3_ENDPOINT=my.s3.website.com
-#ENV REDIS_URL=redis://127.0.0.1:6379
-
 EXPOSE 4242
 # CMD ["sleep", "1d"]
 CMD [ "npm", "start" ]

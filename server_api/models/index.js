@@ -20,7 +20,8 @@ if (process.env.NODE_ENV === 'production') {
   sequelize = new Sequelize(config.database, config.username, config.password, _.merge(config, {
     dialect: 'postgres',
     dialectOptions: {
-      ssl: true
+      // ssl: config.ssl
+        ssl: false
     },
     logging: true
   }));
