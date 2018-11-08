@@ -1,13 +1,13 @@
 {
   "name": "your-priorities-app",
-  "version": "7.6.0-5",
+  "version": "7.7.0-4",
   "license": "AGPL-3.0",
   "dependencies": {
     "@google-cloud/translate": "1.1.0",
     "airbrake": "^1.0.1",
     "async": "^1.4.2",
     "authorized": "^1.0.0",
-    "aws-sdk": "^2.197.0",
+    "aws-sdk": "^2.348.0",
     "bcrypt": "^0.8.5",
     "bluebird": "^3.3.1",
     "body-parser": "^1.9.3",

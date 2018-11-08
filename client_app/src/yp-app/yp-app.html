@@ -504,7 +504,8 @@
         'yp-refresh-domain': '_refreshDomain',
         'yp-language-name': '_setLanguageName',
         'yp-dialog-closed': '_dialogClosed',
-        'yp-open-page': '_openPageFromEvent'
+        'yp-open-page': '_openPageFromEvent',
+        'yp-open-login': '_login'
       },
 
       _openPageFromEvent: function (event, detail) {
@@ -723,6 +724,7 @@
         }
 
         this.set('this.keepOpenForPost', null);
+        document.dispatchEvent(new CustomEvent("lite-signal", {bubbles: true, compose: true, detail: { name: 'yp-pause-video',data:{}}}));
       },
 
       _closePostHeader: function (page, keepOpenForPost) {
@@ -860,6 +862,7 @@
       goBack: function (event, detail) {
         if (this.backPath) {
           if (this.useHardBack) {
+            document.dispatchEvent(new CustomEvent("lite-signal", {bubbles: true, compose: true, detail: { name: 'yp-pause-video',data:{}}}));
             window.location = this.backPath;
           } else {
             this.redirectTo(this.backPath);

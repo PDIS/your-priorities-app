@@ -181,6 +181,7 @@ module.exports = function(sequelize, DataTypes) {
     counter_quality_up: { type: DataTypes.INTEGER, defaultValue: 0 },
     counter_quality_down: { type: DataTypes.INTEGER, defaultValue: 0 },
     embed_data: DataTypes.JSONB,
+    data: DataTypes.JSONB,
     language: { type: DataTypes.STRING, allowNull: true }
   }, {
 
@@ -196,6 +197,11 @@ module.exports = function(sequelize, DataTypes) {
         where: {
           deleted: false
         }
+      },
+      {
+        fields: ['data'],
+        using: 'gin',
+        operator: 'jsonb_path_ops'
       },
       {
         fields: ['image_id'],
@@ -222,6 +228,8 @@ module.exports = function(sequelize, DataTypes) {
 
     underscored: true,
 
+    timestamps: true,
+
     tableName: 'points',
 
     classMethods: {
@@ -241,6 +249,7 @@ module.exports = function(sequelize, DataTypes) {
         Point.belongsTo(sequelize.models.Group);
         Point.hasMany(sequelize.models.PointRevision);
         Point.hasMany(sequelize.models.PointQuality);
+        Point.belongsToMany(models.Video, { as: 'PointVideos', through: 'PointVideo' });
       },
 
       createComment: function (req, options, callback) {
