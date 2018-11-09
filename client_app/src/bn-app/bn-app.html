@@ -588,6 +588,7 @@
 
         this.async(function () {
           if (route.path.indexOf('domain') > -1) {
+            // YP codes
             this.set('domainSubRoute', this.subRoute);
             if (this.$$("#domainPage") && typeof this.$$("#domainPage").refresh !== "undefined") {
               this.$$("#domainPage").refresh();

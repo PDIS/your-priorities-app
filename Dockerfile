@@ -15,6 +15,8 @@ RUN chmod +x ~/.nvm/nvm.sh
 RUN ~/.nvm/nvm.sh install "8.9.4"
 RUN ~/.nvm/nvm.sh use "8.9.4"
 RUN yarn install
+RUN apt-get update
+RUN apt-get install -y vim
 
 WORKDIR /usr/src/app/client_app
 COPY client_app/bower.json ./
