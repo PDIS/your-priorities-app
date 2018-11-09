@@ -328,7 +328,7 @@
 
         <iron-pages selected="{{page}}" style="height:auto;" attr-for-selected="name" fullbleed>
           <yp-domain id="domainPage" name="domain" id-route$="[[domainSubRoute]]" on-change-header="onChangeHeader"></yp-domain>
-          <yp-community id="communityPage" name="community" id-route$="[[communitySubRoute]]" on-change-header="onChangeHeader"></yp-community>
+          <bn-home id="communityPage" name="community" id-route$="[[communitySubRoute]]" on-change-header="onChangeHeader"></bn-home>
           <yp-group id="groupPage" name="group" id-route$="[[groupSubRoute]]" on-change-header="onChangeHeader"></yp-group>
           <yp-post id="postPage" name="post" id-route$="[[postSubRoute]]" on-change-header="onChangeHeader"></yp-post>
           <yp-user id="userPage" name="user" id-route$="[[userSubRoute]]" on-change-header="onChangeHeader"></yp-user>
@@ -664,7 +664,13 @@
           if (page=="view-404") {
             resolvedPageUrl = this.resolveUrl("yp-view-404.html");
           } else {
-            resolvedPageUrl = this.resolveUrl('../yp-' + page + '/' + 'yp-' + page + ".html?v=@version@");
+            switch (page) {
+              case 'community':
+                resolvedPageUrl = this.resolveUrl('../bn-home/bn-home.html?v=@version@');
+                break;
+              default:
+                resolvedPageUrl = this.resolveUrl('../bn-' + page + '/' + 'bn-' + page + ".html?v=@version@");
+            }
           }
           console.log("Trying to load "+resolvedPageUrl);
           this.importHref(resolvedPageUrl, null, this._showPage404, true);
