@@ -303,7 +303,7 @@
           this.set('domain', detail.response.domain);
 
           this.setupGoogleAnalytics(this.domain);
-          if (window.location.pathname=="/") {
+          if (window.location.pathname=="/" && process.env.APP_PREFIX !== 'bn') {
             if (detail.response.community) {
               this.redirectTo("/community/"+detail.response.community.id);
             } else {

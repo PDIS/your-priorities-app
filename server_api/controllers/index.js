@@ -18,9 +18,18 @@ let replaceForBetterIceland = function (data) {
 };
 
 let replaceForYrpri = function (data) {
-  data = data.replace(/XappNameX/g, "Your Priorities");
+  var appName = process.env.APP_NAME;
+  if (!appName) {
+    appName = "Your Priorities";
+  }
+  data = data.replace(/XappNameX/g, appName);
   data = data.replace(/XdescriptionX/g, "Citizen participation application");
   data = data.replace(/XlocaleOverrideX/g, process.env.YP_OVERRIDE_LOCALES_CLIENT_FOLDER);
+  var appPrefix = process.env.APP_PREFIX;
+  if (!appPrefix) {
+    appPrefix = 'yp';
+  }
+  data = data.replace(/XAppPrefixX/g, appPrefix);
   return data.replace(/XmanifestPathX/g, "manifest_yp");
 };
 

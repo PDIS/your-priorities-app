@@ -1,8 +1,8 @@
-version: "2"
+version: "3"
 
 services:
   better-news: 
-    image: better-news/node-web-app
+    image: better-news
     ports: 
       - 4242:4242
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npm start'
@@ -20,6 +20,8 @@ services:
       - S3_BUCKET=my-test
       - S3_ENDPOINT=my.s3.website.com
       - YP_OVERRIDE_LOCALES_CLIENT_FOLDER=better_news
+      - APP_NAME=Better News
+      - APP_PREFIX=bn
   db:
     image: postgres
     environment:
