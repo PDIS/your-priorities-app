@@ -327,9 +327,8 @@
         </app-header>
 
         <iron-pages selected="{{page}}" style="height:auto;" attr-for-selected="name" fullbleed>
-          <yp-domain id="domainPage" name="domain" id-route$="[[domainSubRoute]]" on-change-header="onChangeHeader"></yp-domain>
           <bn-home id="communityPage" name="community" id-route$="[[communitySubRoute]]" on-change-header="onChangeHeader"></bn-home>
-          <yp-group id="groupPage" name="group" id-route$="[[groupSubRoute]]" on-change-header="onChangeHeader"></yp-group>
+          <bn-news id="groupPage" name="group" id-route$="[[groupSubRoute]]" on-change-header="onChangeHeader"></bn-news>
           <yp-post id="postPage" name="post" id-route$="[[postSubRoute]]" on-change-header="onChangeHeader"></yp-post>
           <yp-user id="userPage" name="user" id-route$="[[userSubRoute]]" on-change-header="onChangeHeader"></yp-user>
           <yp-view-404 name="view-404"></yp-view-404>
@@ -668,8 +667,12 @@
               case 'community':
                 resolvedPageUrl = this.resolveUrl('../bn-home/bn-home.html?v=@version@');
                 break;
+              case 'group':
+                resolvedPageUrl = this.resolveUrl('../bn-news/bn-news.html?v=@version@');
+                break;
               default:
                 resolvedPageUrl = this.resolveUrl('../bn-' + page + '/' + 'bn-' + page + ".html?v=@version@");
+                break;
             }
           }
           console.log("Trying to load "+resolvedPageUrl);

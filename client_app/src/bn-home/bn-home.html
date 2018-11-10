@@ -26,8 +26,6 @@
 <link rel="import" href="../yp-group/yp-group-collection-behaviors.html">
 <link rel="import" href="../yp-group/yp-group-grid.html">
 
-<link rel="import" href="yp-community-header.html">
-
 <dom-module id="bn-home">
   <template>
     <style include="iron-flex iron-flex-alignment">
@@ -382,13 +380,12 @@
             this.set('useNormalHeader', true);
           }
 
-          this.fire("change-header", { headerTitle: this.community.Domain.name,
-                                       headerDescription: this.community.Domain.description,
+          this.fire("change-header", { headerTitle: 'Home',
+                                       headerDescription: '',
                                        headerIcon: "group-work",
-                                       disableDomainUpLink: (this.community.configuration &&
-                                                             this.community.configuration.disableDomainUpLink === true),
-                                       documentTitle: this.community.name,
-                                       backPath: "/domain/" + this.community.domain_id });
+                                       disableDomainUpLink: true,
+                                       documentTitle: gAppName,
+                                       backPath: null });
           this.$.pagesAjax.url = "/api/communities/"+this.community.id+"/pages";
           this.$.pagesAjax.generateRequest();
           window.appGlobals.setAnonymousGroupStatus(null);
