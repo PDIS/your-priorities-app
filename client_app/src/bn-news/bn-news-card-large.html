@@ -25,7 +25,7 @@
 <link rel="import" href="../yp-magic-text/yp-magic-text.html">
 
 <link rel="import" href="bn-news-stats.html">
-<link rel="import" href="yp-group-behaviors.html">
+<link rel="import" href="bn-news-behaviors.html">
 
 <dom-module id="bn-news-card-large">
 
@@ -207,14 +207,13 @@
                   </yp-magic-text>
                 </div>
                 <div hidden class="groupAccess">[[groupAccessText]]</div>
+                <yp-magic-text id="tags" class="groupTags"
+                               text-type="groupContent" content-language="[[group.language]]"
+                               content="[[groupTags]]" content-id="[[group.id]]">
+                </yp-magic-text>
                 <yp-magic-text id="objectives" class="groupDescription"
                                text-type="groupContent" content-language="[[group.language]]"
                                content="[[group.objectives]]" content-id="[[group.id]]">
-
-                </yp-magic-text>
-                <yp-magic-text id="tags" class="groupTags"
-                               text-type="groupContent" content-language="[[group.language]]"
-                               content="[[group.tags]]" content-id="[[group.id]]">
 
                 </yp-magic-text>
             </div>

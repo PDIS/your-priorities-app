@@ -32,6 +32,11 @@
         computed: '_groupName(group)'
       },
 
+      groupTags: {
+        type: String,
+        computed: '_groupTags(group)'
+      },
+
       groupObjectives: {
         type: String,
         computed: '_groupObjectives(group)'
@@ -143,6 +148,27 @@
           return this.truncate(this.trim(group.name), 60);
         } else {
           return group.short_name;
+        }
+      } else {
+        return "";
+      }
+    },
+
+    _groupTags: function (group) {
+      console.log('group tag refine called');
+      if (group) {
+        if (group.tags) {
+          // return this.truncate(this.trim(group.name), 60);
+          var ret = '';
+          for (var i in group.tags) {
+            if (i > 0) {
+              ret += '&nbsp';
+            }
+            ret += '#' + group.tags[i];
+          }
+          return this.truncate(ret);
+        } else {
+          return "";
         }
       } else {
         return "";
