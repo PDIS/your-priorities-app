@@ -18,3 +18,4 @@ server_api/uploads/
 platoReport/
 passport-sso/
 /package-lock.json
+/pgp-keyring

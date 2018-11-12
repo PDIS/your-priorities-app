@@ -32,7 +32,7 @@
 
 <link rel="import" href="../ac-notifications/ac-notification-list.html">
 <link rel="import" href="yp-app-nav-drawer.html">
-<link rel="import" href="../yp-dialog-container/yp-dialog-container.html">
+<link rel="import" href="../bn-dialog-container/bn-dialog-container.html">
 <link rel="import" href="../yp-user/yp-user-image.html">
 
 <link rel="import" href="../yp-app-globals/yp-sw-update-toast.html">
@@ -349,7 +349,7 @@
       data="{{routeData}}"
       tail="{{subRoute}}"></app-route>
 
-    <yp-dialog-container id="dialogContainer"></yp-dialog-container>
+    <bn-dialog-container id="dialogContainer"></bn-dialog-container>
     <yp-app-user id="appUser" on-user-changed="onUserChanged"></yp-app-user>
     <yp-sw-update-toast button-label="[[t('reload')]]" message="[[t('newVersionAvailable')]]"></yp-sw-update-toast>
   </template>

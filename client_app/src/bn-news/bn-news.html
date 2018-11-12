@@ -30,7 +30,7 @@
 <link rel="import" href="../yp-theme/yp-theme-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-number-format-behavior.html">
 
-<link rel="import" href="yp-group-card-large.html">
+<link rel="import" href="bn-news-card-large.html">
 
 <dom-module id="bn-news">
   <template>
@@ -192,7 +192,7 @@
     <div id="topContainer">
 
       <div id="topArea" class="large-card-wrapper layout horizontal center-center topArea" hidden$="[[group.configuration.hideGroupHeader]]">
-        <yp-group-card-large id="groupCard" class="largeCard" group="[[group]]" on-update-group="_refreshAjax"></yp-group-card-large>
+        <bn-news-card-large id="groupCard" class="largeCard" group="[[group]]" on-update-group="_refreshAjax"></bn-news-card-large>
       </div>
 
       <div class="largeAddButton layout horizontal center-center" is-apple$="[[isOldiOs]]" is-ipad$="[[isIpad]]" hidden$="[[group.configuration.hideNewPost]]">

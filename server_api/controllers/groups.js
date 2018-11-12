@@ -684,9 +684,15 @@ router.get('/:groupId/default_post_image/:imageId', auth.can('view group'), func
 });
 
 router.post('/:communityId', auth.can('create group'), function(req, res) {
+  var tags = [];
+  var rawTags = req.body.tags.split(',');
+  for (var i in rawTags) {
+    tags.push(rawTags[i].trim());
+  }
   var group = models.Group.build({
     name: req.body.name,
     objectives: req.body.objectives,
+    tags: tags,
     access: models.Group.convertAccessFromRadioButtons(req.body),
     domain_id: req.ypDomain.id,
     user_id: req.user.id,

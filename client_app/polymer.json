@@ -15,7 +15,8 @@
     "src/yp-app/yp-view-404.html",
     "src/bn-home/bn-home.html",
     "src/bn-news/bn-news.html",
-    "src/bn-post/bn-post.html"
+    "src/bn-post/bn-post.html",
+    "src/bn-dialog-container/bn-dialog-container-delayed.html"
   ],
   "lint": {
     "rules": ["polymer-2"]

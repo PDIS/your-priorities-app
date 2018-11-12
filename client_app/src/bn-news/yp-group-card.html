@@ -8,7 +8,7 @@
 
 <link rel="import" href="../yp-app-globals/yp-app-icons.html">
 <link rel="import" href="../yp-behaviors/yp-language-behavior.html">
-<link rel="import" href="yp-group-stats.html">
+<link rel="import" href="bn-news-stats.html">
 <link rel="import" href="yp-group-behaviors.html">
 <link rel="import" href="../yp-membership-button/yp-membership-button.html">
 <link rel="import" href="../yp-behaviors/yp-truncate-behavior.html">
@@ -68,7 +68,7 @@
         display: block;
       }
 
-      yp-group-stats {
+      bn-news-stats {
         color: var(--primary-color-more-darker, #424242);
       }
 
@@ -170,7 +170,7 @@
                        text-type="groupContent" content-language="[[group.language]]"
                        text-only content="[[groupObjectives]]" content-id="[[group.id]]" truncate="200">
         </yp-magic-text>
-        <yp-group-stats class="stats" group="[[group]]"></yp-group-stats>
+        <bn-news-stats class="stats" group="[[group]]"></bn-news-stats>
         <yp-membership-button archived$="[[archived]]" group="[[group]]"></yp-membership-button>
       </paper-card>
     </template>

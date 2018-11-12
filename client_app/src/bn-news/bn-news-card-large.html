@@ -24,10 +24,10 @@
 <link rel="import" href="../yp-behaviors/yp-image-formats-behavior.html">
 <link rel="import" href="../yp-magic-text/yp-magic-text.html">
 
-<link rel="import" href="yp-group-stats.html">
+<link rel="import" href="bn-news-stats.html">
 <link rel="import" href="yp-group-behaviors.html">
 
-<dom-module id="yp-group-card-large">
+<dom-module id="bn-news-card-large">
 
   <template>
     <style include="iron-flex iron-flex-alignment">
@@ -103,6 +103,14 @@
         padding-right: 16px;
         padding-top: 16px;
         font-size: var(--group-description-font-size, 16px);
+      }
+
+      .groupTags {
+        padding-left: 16px;
+        padding-right: 16px;
+        font-size: var(--group-description-font-size, 16px);
+        padding-top: 6px;
+        padding-bottom: 6px;
       }
 
       .group-name {
@@ -204,6 +212,11 @@
                                content="[[group.objectives]]" content-id="[[group.id]]">
 
                 </yp-magic-text>
+                <yp-magic-text id="tags" class="groupTags"
+                               text-type="groupContent" content-language="[[group.language]]"
+                               content="[[group.tags]]" content-id="[[group.id]]">
+
+                </yp-magic-text>
             </div>
           </div>
           <paper-menu-button class="edit" horizontal-align="[[editMenuAlign]]" hidden$="[[!showMenuItem]]">
@@ -222,7 +235,7 @@
             </paper-listbox>
           </paper-menu-button>
         </div>
-        <yp-group-stats class="stats" group="[[group]]"></yp-group-stats>
+        <bn-news-stats class="stats" group="[[group]]"></bn-news-stats>
       </paper-material>
     </div>
     <iron-media-query query="(max-width: 800px)" query-matches="{{narrowScreen}}"></iron-media-query>
@@ -231,7 +244,7 @@
 
   <script>
     Polymer({
-      is: 'yp-group-card-large',
+      is: 'bn-news-card-large',
 
       behaviors: [
         Polymer.ypLanguageBehavior,
