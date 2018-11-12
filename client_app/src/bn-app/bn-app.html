@@ -37,7 +37,7 @@
 
 <link rel="import" href="../yp-app-globals/yp-sw-update-toast.html">
 
-<dom-module id="yp-app">
+<dom-module id="bn-app">
 
   <template>
 
@@ -356,7 +356,7 @@
   <script>
     Polymer({
 
-      is: 'yp-app',
+      is: 'bn-app',
 
       behaviors: [
         Polymer.ypLanguageBehavior,
@@ -522,7 +522,7 @@
           })
         );
         window.autoTranslate = false;
-        Polymer.dom(document).querySelector('yp-app').getDialogAsync("masterToast", function (toast) {
+        Polymer.dom(document).querySelector('bn-app').getDialogAsync("masterToast", function (toast) {
           toast.text = this.t('autoTranslationStopped');
           toast.show();
         }.bind(this));
