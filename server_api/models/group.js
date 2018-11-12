@@ -20,7 +20,8 @@ module.exports = function(sequelize, DataTypes) {
     counter_users: { type: DataTypes.INTEGER, defaultValue: 0 },
     theme_id: { type: DataTypes.INTEGER, defaultValue: null },
     configuration: DataTypes.JSONB,
-    language: { type: DataTypes.STRING, allowNull: true }
+    language: { type: DataTypes.STRING, allowNull: true },
+    tags: { type: DataTypes.ARRAY(DataTypes.STRING), defaultValue: [] }
   }, {
 
     defaultScope: {

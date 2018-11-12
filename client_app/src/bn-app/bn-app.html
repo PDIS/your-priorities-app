@@ -37,7 +37,7 @@
 
 <link rel="import" href="../yp-app-globals/yp-sw-update-toast.html">
 
-<dom-module id="bn-app">
+<dom-module id="yp-app">
 
   <template>
 
@@ -327,6 +327,7 @@
         </app-header>
 
         <iron-pages selected="{{page}}" style="height:auto;" attr-for-selected="name" fullbleed>
+          <yp-domain id="domainPage" name="domain" id-route$="[[domainSubRoute]]" on-change-header="onChangeHeader"></yp-domain>
           <bn-home id="communityPage" name="community" id-route$="[[communitySubRoute]]" on-change-header="onChangeHeader"></bn-home>
           <bn-news id="groupPage" name="group" id-route$="[[groupSubRoute]]" on-change-header="onChangeHeader"></bn-news>
           <yp-post id="postPage" name="post" id-route$="[[postSubRoute]]" on-change-header="onChangeHeader"></yp-post>
@@ -356,7 +357,7 @@
   <script>
     Polymer({
 
-      is: 'bn-app',
+      is: 'yp-app',
 
       behaviors: [
         Polymer.ypLanguageBehavior,
@@ -664,6 +665,9 @@
             resolvedPageUrl = this.resolveUrl("yp-view-404.html");
           } else {
             switch (page) {
+              case 'domain':
+                resolvedPageUrl = this.resolveUrl('../bn-domain/bn-domain.html?v=@version@');
+                break;
               case 'community':
                 resolvedPageUrl = this.resolveUrl('../bn-home/bn-home.html?v=@version@');
                 break;
