@@ -10,7 +10,8 @@ if (process.env.NODE_ENV != 'production') {
   logger = bunyan.createLogger({
     name: 'your-priorities',
     streams: [{
-      level: 'debug',
+      // level: 'debug',
+      level: 'info', // FIXME: RO Debug
       type: 'raw',
       stream: prettyStdOut
     }]

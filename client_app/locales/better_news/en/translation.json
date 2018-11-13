@@ -255,6 +255,7 @@
   "errorNotFound": "Not found...",
   "errorNotAuthorized": "Content not found or you do not have access!",
   "generalError": "There has been an unexpected error. We have been notified.",
+  "from": "From",
   "stats": {
     "posts": "Number of snippets",
     "discussions": "Number of discussions",

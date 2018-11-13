@@ -155,14 +155,13 @@
     },
 
     _groupTags: function (group) {
-      console.log('group tag refine called');
       if (group) {
         if (group.tags) {
           // return this.truncate(this.trim(group.name), 60);
           var ret = '';
           for (var i in group.tags) {
             if (i > 0) {
-              ret += '&nbsp';
+              ret += '&nbsp;';
             }
             ret += '#' + group.tags[i];
           }
@@ -172,6 +171,14 @@
         }
       } else {
         return "";
+      }
+    },
+
+    _groupCreator: function (group) {
+      if (group) {
+
+      } else {
+        return "Unknown user";
       }
     },
 

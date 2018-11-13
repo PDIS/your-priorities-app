@@ -696,6 +696,7 @@ router.post('/:communityId', auth.can('create group'), function(req, res) {
     access: models.Group.convertAccessFromRadioButtons(req.body),
     domain_id: req.ypDomain.id,
     user_id: req.user.id,
+    user_name: req.user.name,
     community_id: req.params.communityId,
     user_agent: req.useragent.source,
     ip_address: req.clientIp

@@ -101,7 +101,7 @@
       .groupDescription {
         padding-left: 16px;
         padding-right: 16px;
-        padding-top: 16px;
+        padding-top: 8px;
         font-size: var(--group-description-font-size, 16px);
       }
 
@@ -109,8 +109,12 @@
         padding-left: 16px;
         padding-right: 16px;
         font-size: var(--group-description-font-size, 16px);
-        padding-top: 6px;
-        padding-bottom: 6px;
+        padding-top: 16px;
+        padding-bottom: 0px;
+      }
+
+      .groupCreator {
+
       }
 
       .group-name {
@@ -162,7 +166,7 @@
         }
 
         .groupDescription {
-          padding-top: 6px;
+          padding-top: 4px;
           padding-bottom: 42px;
         }
 
@@ -205,6 +209,7 @@
                                  disable-translation="[[group.configuration.disableNameAutoTranslation]]"
                                  text-only content="[[groupName]]" content-id="[[group.id]]">
                   </yp-magic-text>
+                  <a href="/somewhere-to-the-user-page">[[t(from)]] [[group.user_name]]</a>
                 </div>
                 <div hidden class="groupAccess">[[groupAccessText]]</div>
                 <yp-magic-text id="tags" class="groupTags"

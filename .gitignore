@@ -19,3 +19,5 @@ platoReport/
 passport-sso/
 /package-lock.json
 /pgp-keyring
+docker-compose.yml
+/amazon-keys.env

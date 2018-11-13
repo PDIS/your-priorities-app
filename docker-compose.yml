@@ -15,13 +15,11 @@ services:
       - ENV=development 
       - DEBUG=your-priorities-app 
       - NODE_ENV=development
-      - AWS_ACCESS_KEY_ID=XXX
-      - AWS_SECRET_ACCESS_KEY=XXX
-      - S3_BUCKET=my-test
-      - S3_ENDPOINT=my.s3.website.com
       - YP_OVERRIDE_LOCALES_CLIENT_FOLDER=better_news
       - APP_NAME=Better News
       - APP_PREFIX=bn
+    env_file:
+      - amazon-keys.env
   db:
     image: postgres
     environment:
