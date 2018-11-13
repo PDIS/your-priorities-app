@@ -734,8 +734,14 @@ router.put('/:id', auth.can('edit group'), function(req, res) {
     ]
   }).then(function (group) {
     if (group) {
+      var tags = [];
+      var rawTags = req.body.tags.split(',');
+      for (var i in rawTags) {
+        tags.push(rawTags[i].trim());
+      }
       group.name =req.body.name;
       group.objectives = req.body.objectives;
+      group.tags = tags;
       group.theme_id = req.body.themeId ? parseInt(req.body.themeId) : null;
       group.access = models.Group.convertAccessFromRadioButtons(req.body);
       updateGroupConfigParamters(req, group);
