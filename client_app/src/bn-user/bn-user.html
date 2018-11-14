@@ -17,7 +17,7 @@
 <link rel="import" href="../yp-ajax/yp-ajax.html">
 <link rel="import" href="../yp-group/yp-group-collection-behaviors.html">
 <link rel="import" href="../yp-community/yp-community-collection-behaviors.html">
-<link rel="import" href="../yp-user/yp-user-large-card.html">
+<link rel="import" href="bn-user-large-card.html">
 <link rel="import" href="../yp-bulk-status-update/yp-bulk-status-display.html">
 
 <dom-module id="bn-user">
@@ -83,7 +83,7 @@
       data="{{statusUpdateRouteData}}">
     </app-route>
 
-    <yp-user-large-card hidden id="userCard" class="largeCard card" user="[[user]]" on-update-domain="_refresh"></yp-user-large-card>
+    <bn-user-card-large id="userCard" class="largeCard card" user="[[user]]" on-update-domain="_refresh"></bn-user-card-large>
 
     <paper-tabs hidden id="paper_tabs" class="tabs" selected="{{selected}}" focused>
       <paper-tab class="tab">[[t('news')]]</paper-tab>

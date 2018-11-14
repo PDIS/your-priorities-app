@@ -16,6 +16,7 @@
     "src/bn-home/bn-home.html",
     "src/bn-news/bn-news.html",
     "src/bn-post/bn-post.html",
+    "src/bn-user/bn-user.html",
     "src/bn-dialog-container/bn-dialog-container-delayed.html"
   ],
   "lint": {

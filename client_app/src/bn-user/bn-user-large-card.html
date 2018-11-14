@@ -24,11 +24,10 @@
 <link rel="import" href="../yp-behaviors/yp-media-formats-behavior.html">
 <link rel="import" href="../yp-magic-text/yp-magic-text.html">
 
-<link rel="import" href="bn-news-stats.html">
-<link rel="import" href="bn-news-actions.html">
-<link rel="import" href="bn-news-behaviors.html">
+<link rel="import" href="bn-user-stats.html">
+<link rel="import" href="bn-user-behaviors.html">
 
-<dom-module id="bn-news-card-large">
+<dom-module id="bn-user-card-large">
 
   <template>
     <style include="iron-flex iron-flex-alignment">
@@ -196,6 +195,7 @@
     <lite-signal on-lite-signal-yp-language="_languageEvent"></lite-signal>
     <lite-signal on-lite-signal-yp-pause-video="_pauseVideo"></lite-signal>
 
+    <div>qqqqqqqqqqqqqqqqqqqqqqqqqqq</div>
     <div class="layout horizontal center-center wrap">
       <paper-material id="cardImage" elevation="3" animated class="groupCard imageCard top-card">
         <template is="dom-if" if="[[groupVideoURL]]" restamp>
@@ -259,11 +259,11 @@
 
   <script>
     Polymer({
-      is: 'bn-news-card-large',
+      is: 'bn-user-card-large',
 
       behaviors: [
         Polymer.ypLanguageBehavior,
-        Polymer.GroupBehaviors,
+        Polymer.UserBehaviors,
         Polymer.LargeCardBehaviors,
         Polymer.AccessHelpers,
         Polymer.ypGotAdminRightsBehavior,
@@ -273,7 +273,7 @@
       ],
 
       properties: {
-        group: {
+        user: {
           type: Object,
           observer: '_groupChanged'
         },
