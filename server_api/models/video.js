@@ -6,6 +6,7 @@ var log = require('../utils/logger');
 var toJson = require('../utils/to_json');
 const aws = require('aws-sdk');
 const _ = require('lodash');
+var queue = require('../active-citizen/workers/queue');
 
 "use strict";
 
@@ -14,7 +15,10 @@ module.exports = function(sequelize, DataTypes) {
     name: DataTypes.STRING,
     description: DataTypes.TEXT,
     meta: DataTypes.JSONB,
+    public_meta: DataTypes.JSONB,
     formats: DataTypes.JSONB,
+    views:{ type: DataTypes.BIGINT, defaultValue: 0 },
+    long_views:{ type: DataTypes.BIGINT, defaultValue: 0 },
     user_id: DataTypes.INTEGER,
     viewable: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     ip_address: { type: DataTypes.STRING, allowNull: false },
@@ -40,6 +44,11 @@ module.exports = function(sequelize, DataTypes) {
     indexes: [
       {
         fields: ['meta'],
+        using: 'gin',
+        operator: 'jsonb_path_ops'
+      },
+      {
+        fields: ['public_meta'],
         using: 'gin',
         operator: 'jsonb_path_ops'
       },
@@ -108,15 +117,35 @@ module.exports = function(sequelize, DataTypes) {
         })
       },
 
-      addToPost: (video, id, callback) => {
+      addToPost: (video, options, callback) => {
         sequelize.models.Post.find({
           where: {
-            id: id
+            id: options.postId
           }
         }).then((post) => {
           post.addPostVideo(video).then(() => {
-            log.info("Have added video to post", { id });
-            callback();
+            log.info("Have added video to post", { id: options.postId });
+            if (process.env.GOOGLE_TRANSCODING_FLAC_BUCKET && process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+              if (!post.public_data) {
+                post.set('public_data', {});
+              }
+              post.set('public_data.transcript', {});
+              post.set('public_data.transcript', { videoId: video.id });
+              post.set('public_data.transcript.inProgress', true);
+              const workPackage = {
+                browserLanguage: options.browserLanguage,
+                appLanguage:options.appLanguage,
+                videoId: video.id,
+                type: 'create-video-transcript' };
+              queue.create('process-voice-to-text', workPackage).priority('high').removeOnComplete(true).save();
+              post.save().then( () => {
+                callback();
+              }).catch( error => {
+                callback(error);
+              })
+            } else {
+              callback();
+            }
           });
         }).catch((error) => callback(error));
       },
@@ -162,15 +191,15 @@ module.exports = function(sequelize, DataTypes) {
 
       addToCollection: (video, options, callback) => {
         if (options.postId) {
-          sequelize.models.Video.addToPost(video, options.postId, callback);
+          sequelize.models.Video.addToPost(video, options, callback);
         } else if (options.groupId) {
           sequelize.models.Video.addToGroup(video, options.groupId, callback);
         } else if (options.communityId) {
           sequelize.models.Video.addToCommunity(video, options.communityId, callback);
         } else if (options.domainId) {
           sequelize.models.Video.addToDomain(video, options.domainId, callback);
-        } else if (options.pointId) {
-          sequelize.models.Video.addToPoint(video, options.pointId, callback);
+        } else {
+          callback("No collection to add to");
         }
       },
 
@@ -183,7 +212,7 @@ module.exports = function(sequelize, DataTypes) {
           frames.push(sequelize.models.Video.getThumbnailUrl(video,frame+1));
         }
 
-        async.forEach(frames, (frame, foreachCallback) => {
+        async.forEachSeries(frames, (frame, foreachCallback) => {
           sequelize.models.Image.build({
             s3_bucket_name: video.meta.thumbnailBucket,
             user_id: req.user.id,
@@ -191,11 +220,14 @@ module.exports = function(sequelize, DataTypes) {
             ip_address: "127.0.0.1",
             formats: JSON.stringify([frame])
           }).save().then((image) => {
-            video.addVideoImage(image).then(() => {
-              foreachCallback();
-            }).catch((error) => {
-              foreachCallback(error);
-            })
+            // We add a small delay to make sure the images can be ordered by updated_at
+            setTimeout(function(){
+              video.addVideoImage(image).then(() => {
+                foreachCallback();
+              }).catch((error) => {
+                foreachCallback(error);
+              })
+            }, 1)
           }).catch((error) => {
             foreachCallback(error);
           })

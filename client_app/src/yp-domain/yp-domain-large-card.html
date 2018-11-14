@@ -18,7 +18,7 @@
 <link rel="import" href="../yp-behaviors/yp-got-admin-rights-behavior.html">
 <link rel="import" href="../yp-behaviors/access-helpers.html">
 <link rel="import" href="../yp-behaviors/yp-large-card-behaviors.html">
-<link rel="import" href="../yp-behaviors/yp-image-formats-behavior.html">
+<link rel="import" href="../yp-behaviors/yp-media-formats-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-truncate-behavior.html">
 <link rel="import" href="../yp-magic-text/yp-magic-text.html">
 
@@ -132,7 +132,7 @@
         }
 
         iron-image, video {
-          width: 306px;
+          width: 306px !important;
           height: 172px !important;
         }
 
@@ -167,7 +167,7 @@
     <div class="layout horizontal wrap">
       <paper-material id="cardImage" elevation="3" animated class="large-card imageCard top-card">
         <template is="dom-if" if="[[domainVideoURL]]" restamp>
-          <video id="videoPlayer" controls class="image" src="[[domainVideoURL]]"></video>
+          <video id="videoPlayer" data-id$="[[domainVideoId]]" controls preload="meta" class="image" src="[[domainVideoURL]]" playsinline poster="[[domainVideoPosterURL]]"></video>
         </template>
         <template is="dom-if" if="[[!domainVideoURL]]">
           <iron-image class="image" hidden$="[[hideImage]]" sizing="cover" src$="[[_domainLogoImagePath(domain)]]"></iron-image>
@@ -212,7 +212,7 @@
 
     <iron-media-query query="(max-width: 945px)" query-matches="{{narrowScreen}}"></iron-media-query>
     <lite-signal on-lite-signal-got-admin-rights="_gotAdminRights"></lite-signal>
-    <lite-signal on-lite-signal-yp-pause-video="_pauseVideo"></lite-signal>
+    <lite-signal on-lite-signal-yp-pause-media-playback="_pauseMediaPlayback"></lite-signal>
   </template>
 
   <script>
@@ -224,7 +224,7 @@
         Polymer.LargeCardBehaviors,
         Polymer.AccessHelpers,
         Polymer.ypGotAdminRightsBehavior,
-        Polymer.ypImageFormatsBehavior,
+        Polymer.ypMediaFormatsBehavior,
         Polymer.ypTruncateBehavior
       ],
 
@@ -233,7 +233,8 @@
         domain: {
           type: Object,
           notify: true,
-          value: null
+          value: null,
+          observer: '_domainChanged'
         },
 
         elevation: {
@@ -260,23 +261,46 @@
         domainVideoURL: {
           type: String,
           computed: '_domainVideoURL(domain)'
-        }
+        },
+
+        domainVideoPosterURL: {
+          type: String,
+          computed: '_domainVideoPosterURL(domain)'
+        },
+
+        domainVideoId: Number
       },
 
-      _pauseVideo: function () {
-        var videoPlayer = this.$$("#videoPlayer");
-        if (videoPlayer) {
-          videoPlayer.pause();
-        }
+      _domainChanged: function (domain, previousDomain) {
+        this.setupMediaEventListeners(domain, previousDomain);
       },
 
       _domainVideoURL: function (domain) {
-        if (domain &&
+        if (domain && domain.configuration &&
           domain.configuration.useVideoCover &&
-          domain.DomainLogoVideos &&
-          domain.DomainLogoVideos.length>0 &&
-          domain.DomainLogoVideos[0].viewable) {
-          return domain.DomainLogoVideos[0].formats[0]
+          domain.DomainLogoVideos) {
+          var videoURL = this._getVideoURL(domain.DomainLogoVideos);
+          if (videoURL) {
+            this.set('domainVideoId', domain.DomainLogoVideos[0].id);
+            return videoURL;
+          } else {
+            return null;
+          }
+        } else {
+          return null;
+        }
+      },
+
+      _domainVideoPosterURL: function (domain) {
+        if (domain && domain.configuration &&
+          domain.configuration.useVideoCover &&
+          domain.DomainLogoVideos) {
+          var videoPosterURL = this._getVideoPosterURL(domain.DomainLogoVideos);
+          if (videoPosterURL) {
+            return videoPosterURL;
+          } else {
+            return null;
+          }
         } else {
           return null;
         }

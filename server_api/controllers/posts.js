@@ -167,11 +167,12 @@ router.get('/:id', auth.can('view post'), function(req, res) {
     where: {
       id: req.params.id
     },
-    attributes: ['id','name','description','status','content_type','official_status','counter_endorsements_up','cover_media_type',
+    attributes: ['id','name','description','public_data','status','content_type','official_status','counter_endorsements_up','cover_media_type',
       'counter_endorsements_down','group_id','language','counter_points','counter_flags','location','created_at'],
     order: [
       [ { model: models.Image, as: 'PostHeaderImages' } ,'updated_at', 'asc' ],
       [ { model: models.Video, as: "PostVideos" }, 'updated_at', 'desc' ],
+      [ { model: models.Audio, as: "PostAudios" }, 'updated_at', 'desc' ],
       [ { model: models.Video, as: "PostVideos" }, { model: models.Image, as: 'VideoImages' } ,'updated_at', 'asc' ]
     ],
     include: [
@@ -238,7 +239,7 @@ router.get('/:id', auth.can('view post'), function(req, res) {
       {
         model: models.Video,
         required: false,
-        attributes: ['id','formats','updated_at','viewable'],
+        attributes: ['id','formats','updated_at','viewable','public_meta'],
         as: 'PostVideos',
         include: [
           {
@@ -248,6 +249,12 @@ router.get('/:id', auth.can('view post'), function(req, res) {
             required: false
           },
         ]
+      },
+      {
+        model: models.Audio,
+        required: false,
+        attributes: ['id','formats','updated_at','listenable'],
+        as: 'PostAudios',
       },
       // PointRevision
       {
@@ -273,7 +280,7 @@ router.get('/:id/translatedText', auth.can('view post'), function(req, res) {
       where: {
         id: req.params.id
       },
-      attributes: ['id','name','description']
+      attributes: ['id','name','description','public_data']
     }).then(function(post) {
       if (post) {
         models.TranslationCache.getTranslation(req, post, function (error, translation) {
@@ -393,6 +400,7 @@ router.get('/:id/newPoints', auth.can('view post'), function(req, res) {
         [ models.PointRevision, 'created_at', 'asc' ],
         [ models.User, { model: models.Image, as: 'UserProfileImages' }, 'created_at', 'asc' ],
         [ { model: models.Video, as: "PointVideos" }, 'updated_at', 'desc' ],
+        [ { model: models.Audio, as: "PointAudios" }, 'updated_at', 'desc' ],
         [ { model: models.Video, as: "PointVideos" }, { model: models.Image, as: 'VideoImages' } ,'updated_at', 'asc' ],
           [ models.User, { model: models.Organization, as: 'OrganizationUsers' }, { model: models.Image, as: 'OrganizationLogoImages' }, 'created_at', 'asc' ]
       ],
@@ -429,7 +437,7 @@ router.get('/:id/newPoints', auth.can('view post'), function(req, res) {
         {
           model: models.Video,
           required: false,
-          attributes: ['id','formats','updated_at','viewable'],
+          attributes: ['id','formats','updated_at','viewable','public_meta'],
           as: 'PointVideos',
           include: [
             {
@@ -439,6 +447,12 @@ router.get('/:id/newPoints', auth.can('view post'), function(req, res) {
               required: false
             },
           ]
+        },
+        {
+          model: models.Audio,
+          required: false,
+          attributes: ['id','formats','updated_at','listenable'],
+          as: 'PointAudios'
         },
         { model: models.PointQuality,
           attributes: { exclude: ['ip_address', 'user_agent'] },
@@ -482,6 +496,7 @@ router.get('/:id/points', auth.can('view post'), function(req, res) {
       [ models.PointRevision, 'created_at', 'asc' ],
       [ models.User, { model: models.Image, as: 'UserProfileImages' }, 'created_at', 'asc' ],
       [ { model: models.Video, as: "PointVideos" }, 'updated_at', 'desc' ],
+      [ { model: models.Audio, as: "PointAudios" }, 'updated_at', 'desc' ],
       [ { model: models.Video, as: "PointVideos" }, { model: models.Image, as: 'VideoImages' } ,'updated_at', 'asc' ],
       [ models.User, { model: models.Organization, as: 'OrganizationUsers' }, { model: models.Image, as: 'OrganizationLogoImages' }, 'created_at', 'asc' ]
     ],
@@ -529,7 +544,7 @@ router.get('/:id/points', auth.can('view post'), function(req, res) {
       {
         model: models.Video,
         required: false,
-        attributes: ['id','formats','updated_at','viewable'],
+        attributes: ['id','formats','updated_at','viewable','public_meta'],
         as: 'PointVideos',
         include: [
           {
@@ -539,6 +554,12 @@ router.get('/:id/points', auth.can('view post'), function(req, res) {
             required: false
           },
         ]
+      },
+      {
+        model: models.Audio,
+        required: false,
+        attributes: ['id','formats','updated_at','listenable'],
+        as: 'PointAudios'
       },
       {
         model: models.Post,
@@ -596,6 +617,29 @@ var updatePostData = function (req, post) {
   }
 };
 
+router.put('/:id/editTranscript', auth.can('edit post'), function (req, res) {
+  models.Post.find({
+    where: {
+      id: req.params.id
+    }
+  }).then( post => {
+    if (post) {
+      post.set('public_data.transcript.text', req.body.content);
+      post.set('public_data.transcript.userEdited', true);
+      post.save().then( () => {
+        res.sendStatus(200);
+      }).catch( error => {
+        sendPostOrError(res, req.params.id, 'editTranscript', req.user, error, 500);
+      });
+    } else {
+      sendPostOrError(res, req.params.id, 'editTranscript', req.user, "Not found", 404);
+    }
+
+  }).catch( error => {
+    sendPostOrError(res, req.params.id, 'editTranscript', req.user, error, 500);
+  })
+});
+
 router.post('/:groupId', auth.can('create post'), function(req, res) {
   var post = models.Post.build({
     name: req.body.name,
@@ -651,6 +695,98 @@ router.post('/:groupId', auth.can('create post'), function(req, res) {
     });
   }).catch(function(error) {
     sendPostOrError(res, null, 'view', req.user, error);
+  });
+});
+
+router.get('/:id/videoTranscriptStatus', auth.can('edit post'), function(req, res) {
+  models.Post.find({
+    where: {
+      id: req.params.id
+    }
+  }).then( post => {
+    if (post && post.public_data && post.public_data.transcript) {
+      if (post.public_data.transcript.inProgress===true && post.public_data.transcript.videoId) {
+        models.Video.find({
+          where: {
+            id: post.public_data.transcript.videoId
+          }
+        }).then( video => {
+          if (video.meta.transcript && video.meta.transcript.text) {
+            post.set('public_data.transcript.inProgress', false);
+            post.set('public_data.transcript.text', video.meta.transcript.text);
+            post.save().then( savedPost => {
+              res.send({ text:video.meta.transcript.text })
+            }).catch( error => {
+              sendPostOrError(res, req.params.id, 'videoTranscriptStatus', req.user, error, 500);
+            });
+          } else if (video.meta.transcript && video.meta.transcript.error) {
+            post.set('public_data.transcript.inProgress', false);
+            post.set('public_data.transcript.error', video.meta.transcript.error );
+            post.save().then( savedPost => {
+              res.send({ error: video.meta.transcript.error });
+            }).catch( error => {
+              sendPostOrError(res, req.params.id, 'videoTranscriptStatus', req.user, error, 500);
+            });
+          } else {
+            res.send({ inProgress: true });
+          }
+        }).catch( error => {
+          sendPostOrError(res, req.params.id, 'videoTranscriptStatus', req.user, error, 500);
+        });
+      } else {
+        send({ noInProgress: true });
+      }
+    } else {
+      sendPostOrError(res, req.params.id, 'videoPostTranscriptStatus', req.user, "not found", 404);
+    }
+  }).catch ( error => {
+    sendPostOrError(res, req.params.id, 'videoPostTranscriptStatus', req.user, error, 500);
+  });
+});
+
+router.get('/:id/audioTranscriptStatus', auth.can('edit post'), function(req, res) {
+  models.Post.find({
+    where: {
+      id: req.params.id
+    }
+  }).then( post => {
+    if (post && post.public_data && post.public_data.transcript) {
+      if (post.public_data.transcript.inProgress===true && post.public_data.transcript.audioId) {
+        models.Audio.find({
+          where: {
+            id: post.public_data.transcript.audioId
+          }
+        }).then( audio => {
+          if (audio.meta.transcript && audio.meta.transcript.text) {
+            post.set('public_data.transcript.inProgress', false);
+            post.set('public_data.transcript.text', audio.meta.transcript.text);
+            post.save().then( savedPost => {
+              res.send({ text:audio.meta.transcript.text })
+            }).catch( error => {
+              sendPostOrError(res, req.params.id, 'audioTranscriptStatus', req.user, error, 500);
+            });
+          } else if (audio.meta.transcript && audio.meta.transcript.error) {
+            post.set('public_data.transcript.inProgress', false);
+            post.set('public_data.transcript.error', audio.meta.transcript.error );
+            post.save().then( savedPost => {
+              res.send({ error: audio.meta.transcript.error });
+            }).catch( error => {
+              sendPostOrError(res, req.params.id, 'audioTranscriptStatus', req.user, error, 500);
+            });
+          } else {
+            res.send({ inProgress: true });
+          }
+        }).catch( error => {
+          sendPostOrError(res, req.params.id, 'audioTranscriptStatus', req.user, error, 500);
+        });
+      } else {
+        send({ noInProgress: true });
+      }
+    } else {
+      sendPostOrError(res, req.params.id, 'audioPostTranscriptStatus', req.user, "not found", 404);
+    }
+  }).catch ( error => {
+    sendPostOrError(res, req.params.id, 'audioPostTranscriptStatus', req.user, error, 500);
   });
 });
 

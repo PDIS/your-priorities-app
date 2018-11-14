@@ -51,7 +51,8 @@ var getDomain = function (req, domainId, done) {
         order: [
           [{model: models.Image, as: 'DomainLogoImages'}, 'created_at', 'asc'],
           [{model: models.Image, as: 'DomainHeaderImages'}, 'created_at', 'asc'],
-          [{model: models.Video, as: "DomainLogoVideos" }, 'updated_at', 'desc' ]
+          [{model: models.Video, as: "DomainLogoVideos" }, 'updated_at', 'desc' ],
+          [{model: models.Video, as: "DomainLogoVideos" }, { model: models.Image, as: 'VideoImages' } ,'updated_at', 'asc' ]
         ],
         include: [
           {
@@ -63,8 +64,16 @@ var getDomain = function (req, domainId, done) {
           {
             model: models.Video,
             as: 'DomainLogoVideos',
-            attributes:  ['id','formats','viewable'],
-            required: false
+            attributes:  ['id','formats','viewable','public_meta'],
+            required: false,
+            include: [
+              {
+                model: models.Image,
+                as: 'VideoImages',
+                attributes:["formats",'updated_at'],
+                required: false
+              },
+            ]
           },
           {
             model: models.Image,

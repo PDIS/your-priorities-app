@@ -9,7 +9,7 @@
 <link rel="import" href="../yp-behaviors/access-helpers.html">
 <link rel="import" href="../yp-behaviors/yp-got-admin-rights-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-logged-in-user-behavior.html">
-<link rel="import" href="../yp-behaviors/yp-image-formats-behavior.html">
+<link rel="import" href="../yp-behaviors/yp-media-formats-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-truncate-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-goto-behavior.html">
 <link rel="import" href="../yp-magic-text/yp-magic-text.html">
@@ -126,11 +126,11 @@
 
       .postActions  {
         position: absolute;
-        right: 24px;
-        bottom: 16px;
+        right: 11px;
+        bottom: 2px;
       }
 
-      @media (max-width: 420px) {
+      @media (max-width: 430px) {
         :host {
 
         }
@@ -205,6 +205,23 @@
           height: 118px;
           min-height: 118px;
         }
+
+        .card {
+          height: 100%;
+          padding-bottom: 48px;
+        }
+
+        .postCard {
+          height: 100% !important;
+        }
+
+        yp-post-cover-media[audio-cover] {
+          width: 100%;
+          height: 90px !important;
+        }
+
+
+
       }
 
       [hidden] {
@@ -218,9 +235,10 @@
     <paper-material mini$="[[mini]]" hide-post-cover$="[[post.Group.configuration.hidePostCover]]"
                     hide-description$="[[post.Group.configuration.hidePostDescription]]"
                     hide-actions$="[[post.Group.configuration.hidePostActionsInGrid]]"
+                    audio-cover$="[[isAudioCover]]"
                     class="card postCard layout vertical" elevation="[[elevation]]" animated>
       <div class="layout vertical">
-        <yp-post-cover-media mini$="[[mini]]" post="[[post]]" hidden$="[[post.Group.configuration.hidePostCover]]"></yp-post-cover-media>
+        <yp-post-cover-media mini$="[[mini]]" audio-cover$="[[isAudioCover]]" post="[[post]]" hidden$="[[post.Group.configuration.hidePostCover]]"></yp-post-cover-media>
         <div class="postNameContainer">
           <div class="post-name" mini$="[[mini]]" id="postName" on-tap="goToPostIfNotHeader">
             <yp-magic-text id="postNameMagicText" text-type="postName" content-language="[[post.language]]"
@@ -248,7 +266,7 @@
         Polymer.YpPostBehavior,
         Polymer.AccessHelpers,
         Polymer.ypLoggedInUserBehavior,
-        Polymer.ypImageFormatsBehavior,
+        Polymer.ypMediaFormatsBehavior,
         Polymer.ypTruncateBehavior,
         Polymer.ypGotoBehavior
       ],
@@ -284,6 +302,11 @@
         mini: {
           type: Boolean,
           value: false
+        },
+
+        isAudioCover: {
+          type: Boolean,
+          value: false
         }
       },
 
@@ -313,6 +336,11 @@
 
       _postChanged: function (post) {
         if (post) {
+          if (post.cover_media_type==='audio') {
+            this.set('isAudioCover', true);
+          } else {
+            this.set('isAudioCover', false);
+          }
           this.async(function () {
             var postName = this.$$("#postName");
             if (postName) {

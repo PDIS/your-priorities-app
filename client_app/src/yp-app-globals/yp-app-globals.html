@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 
 <link rel="import" href="../yp-behaviors/yp-language-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-goto-behavior.html">
@@ -12,13 +13,28 @@
 
   <template>
     <style include="iron-flex iron-flex-alignment">
+      paper-dialog {
+        background-color: #FFF;
+        max-width: 400px;
+      }
     </style>
+
+    <paper-dialog id="dialog">
+      <p>[[notifyDialogText]]</p>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus on-tap="_resetNotifyDialogText">OK</paper-button>
+      </div>
+    </paper-dialog>
 
     <yp-session id="session"></yp-session>
 
     <yp-ajax id="boot" url="/api/domains" on-response="_bootResponse"></yp-ajax>
-    <yp-ajax auto url="/api/videos/hasVideoUploadSupport" on-response="_hasVideoUploadSupport"></yp-ajax>
+    <yp-ajax hidden auto url="/api/videos/hasVideoUploadSupport" on-response="_hasVideoUploadSupport"></yp-ajax>
+    <yp-ajax hidden auto url="/api/audios/hasAudioUploadSupport" on-response="_hasAudioUploadSupport"></yp-ajax>
+    <yp-ajax id="videoViewsAjax" hidden method="PUT" url="/api/videos/videoView"></yp-ajax>
+    <yp-ajax id="audioListenAjax" hidden method="PUT" url="/api/audios/audioListen"></yp-ajax>
     <lite-signal on-lite-signal-logged-in="_userLoggedIn"></lite-signal>
+
   </template>
 
   <script>
@@ -134,6 +150,20 @@
           goalEvents: {
             type: Array,
             value: ['newPost','endorse_up','endorse_down','newPointFor','newPointAgainst']
+          },
+
+          notifyDialogText: String
+        },
+
+        _resetNotifyDialogText: function () {
+          this.set('notifyDialogText', null);
+        },
+
+        showSpeechToTextInfoIfNeeded: function () {
+          if (window.appGlobals.hasTranscriptSupport && !localStorage.getItem("haveShownTranscriptInfo")) {
+            localStorage.setItem("haveShownTranscriptInfo", true);
+            this.set('notifyDialogText', this.t('speechToTextInfo'));
+            this.$.dialog.open();
           }
         },
 
@@ -141,6 +171,38 @@
           if (detail && detail.response && detail.response.hasVideoUploadSupport===true) {
             window.appGlobals.hasVideoUpload = true;
           }
+
+          if (detail && detail.response && detail.response.hasTranscriptSupport===true) {
+            window.appGlobals.hasTranscriptSupport = true;
+          }
+        },
+
+        sendVideoView: function (videoId) {
+          this.$.videoViewsAjax.body = { videoId: videoId };
+          this.$.videoViewsAjax.generateRequest();
+          this.activity('view', 'video', videoId);
+        },
+
+        sendLongVideoView: function (videoId) {
+          this.$.videoViewsAjax.body = { videoId: videoId, longPlaytime: true };
+          this.$.videoViewsAjax.generateRequest();
+        },
+
+        _hasAudioUploadSupport: function (event, detail) {
+          if (detail && detail.response && detail.response.hasAudioUploadSupport===true) {
+            window.appGlobals.hasAudioUpload = true;
+          }
+        },
+
+        sendAudioListen: function (audioId) {
+          this.$.audioListenAjax.body = { audioId: audioId };
+          this.$.audioListenAjax.generateRequest();
+          this.activity('view', 'audio', audioId);
+        },
+
+        sendLongAudioListen: function (audioId) {
+          this.$.audioListenAjax.body = { audioId: audioId, longPlaytime: true };
+          this.$.audioListenAjax.generateRequest();
         },
 
         changeLocaleIfNeededAfterWait: function (locale, force) {

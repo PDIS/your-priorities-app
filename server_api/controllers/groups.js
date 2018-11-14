@@ -182,9 +182,10 @@ var updateGroupConfigParamters = function (req, group) {
   group.set('configuration.hidePostActionsInGrid', truthValueFromBody(req.body.hidePostActionsInGrid));
   group.set('configuration.forceSecureSamlLogin', truthValueFromBody(req.body.forceSecureSamlLogin));
   group.set('configuration.hidePostFilterAndSearch', truthValueFromBody(req.body.hidePostFilterAndSearch));
+  group.set('configuration.hidePostImageUploads', truthValueFromBody(req.body.hidePostImageUploads));
+
   group.set('configuration.allowPostVideoUploads', truthValueFromBody(req.body.allowPostVideoUploads));
   group.set('configuration.allowPointVideoUploads', truthValueFromBody(req.body.allowPointVideoUploads));
-  group.set('configuration.hidePostImageUploads', truthValueFromBody(req.body.hidePostImageUploads));
   group.set('configuration.useVideoCover', truthValueFromBody(req.body.useVideoCover));
   group.set('configuration.videoPostUploadLimitSec', (req.body.videoPostUploadLimitSec && req.body.videoPostUploadLimitSec!="") ? req.body.videoPostUploadLimitSec : "60");
   group.set('configuration.videoPointUploadLimitSec', (req.body.videoPointUploadLimitSec && req.body.videoPointUploadLimitSec!="") ? req.body.videoPointUploadLimitSec : "30");
@@ -196,6 +197,23 @@ var updateGroupConfigParamters = function (req, group) {
   if (group.configuration.videoPointUploadLimitSec && parseInt(group.configuration.videoPointUploadLimitSec)) {
     if (parseInt(group.configuration.videoPointUploadLimitSec)>90) {
       group.set('configuration.videoPointUploadLimitSec', 90);
+    }
+  }
+
+  group.set('configuration.allowPostAudioUploads', truthValueFromBody(req.body.allowPostAudioUploads));
+  group.set('configuration.allowPointAudioUploads', truthValueFromBody(req.body.allowPointAudioUploads));
+  group.set('configuration.useAudioCover', truthValueFromBody(req.body.useAudioCover));
+  group.set('configuration.audioPostUploadLimitSec', (req.body.audioPostUploadLimitSec && req.body.audioPostUploadLimitSec!="") ? req.body.audioPostUploadLimitSec : "60");
+  group.set('configuration.audioPointUploadLimitSec', (req.body.audioPointUploadLimitSec && req.body.audioPointUploadLimitSec!="") ? req.body.audioPointUploadLimitSec : "30");
+  if (group.configuration.audioPostUploadLimitSec && parseInt(group.configuration.audioPostUploadLimitSec)) {
+    if (parseInt(group.configuration.audioPostUploadLimitSec)>150) {
+      group.set('configuration.audioPostUploadLimitSec', 150);
+    }
+  }
+
+  if (group.configuration.audioPointUploadLimitSec && parseInt(group.configuration.audioPointUploadLimitSec)) {
+    if (parseInt(group.configuration.audioPointUploadLimitSec)>90) {
+      group.set('configuration.audioPointUploadLimitSec', 90);
     }
   }
 };
@@ -725,11 +743,43 @@ router.post('/:communityId', auth.can('create group'), function(req, res) {
 router.put('/:id', auth.can('edit group'), function(req, res) {
   models.Group.find({
     where: {id: req.params.id },
+    order: [
+      [ { model: models.Image, as: 'GroupLogoImages' } , 'created_at', 'asc' ],
+      [ { model: models.Image, as: 'GroupHeaderImages' } , 'created_at', 'asc' ],
+      [ { model: models.Video, as: "GroupLogoVideos" }, 'updated_at', 'desc' ],
+      [ { model: models.Video, as: "GroupLogoVideos" }, { model: models.Image, as: 'VideoImages' } ,'updated_at', 'asc' ],
+    ],
     include: [
       {
         model: models.Community,
         required: true,
         attributes: ['id','access']
+      },
+      {
+        model: models.Image,
+        as: 'GroupLogoImages',
+        attributes:  models.Image.defaultAttributesPublic,
+        required: false
+      },
+      {
+        model: models.Video,
+        as: 'GroupLogoVideos',
+        attributes:  ['id','formats','viewable','public_meta'],
+        required: false,
+        include: [
+          {
+            model: models.Image,
+            as: 'VideoImages',
+            attributes:["formats",'updated_at'],
+            required: false
+          },
+        ]
+      },
+      {
+        model: models.Image,
+        as: 'GroupHeaderImages',
+        attributes:  models.Image.defaultAttributesPublic,
+        required: false
       }
     ]
   }).then(function (group) {
@@ -831,7 +881,8 @@ router.get('/:id', auth.can('view group'), function(req, res) {
     order: [
       [ { model: models.Image, as: 'GroupLogoImages' } , 'created_at', 'asc' ],
       [ { model: models.Image, as: 'GroupHeaderImages' } , 'created_at', 'asc' ],
-      [ { model: models.Video, as: "GroupLogoVideos" }, 'updated_at', 'desc' ]
+      [ { model: models.Video, as: "GroupLogoVideos" }, 'updated_at', 'desc' ],
+      [ { model: models.Video, as: "GroupLogoVideos" }, { model: models.Image, as: 'VideoImages' } ,'updated_at', 'asc' ],
     ],
     include: [
       {
@@ -868,8 +919,16 @@ router.get('/:id', auth.can('view group'), function(req, res) {
       {
         model: models.Video,
         as: 'GroupLogoVideos',
-        attributes:  ['id','formats','viewable'],
-        required: false
+        attributes:  ['id','formats','viewable','public_meta'],
+        required: false,
+        include: [
+          {
+            model: models.Image,
+            as: 'VideoImages',
+            attributes:["formats",'updated_at'],
+            required: false
+          },
+        ]
       },
       {
         model: models.Image,
@@ -954,6 +1013,7 @@ var getPostsWithAllFromIds = function (postsWithIds, postOrder, done) {
       [ { model: models.Image, as: 'PostHeaderImages' } ,'updated_at', 'asc' ],
       [ { model: models.Category }, { model: models.Image, as: 'CategoryIconImages' } ,'updated_at', 'asc' ],
       [ { model: models.Video, as: "PostVideos" }, 'updated_at', 'desc' ],
+      [ { model: models.Audio, as: "PostAudios" }, 'updated_at', 'desc' ],
       [ { model: models.Video, as: "PostVideos" }, { model: models.Image, as: 'VideoImages' } ,'updated_at', 'asc' ]
     ],
     include: [
@@ -971,8 +1031,14 @@ var getPostsWithAllFromIds = function (postsWithIds, postOrder, done) {
         ]
       },
       {
+        model: models.Audio,
+        required: false,
+        attributes: ['id','formats','updated_at','listenable'],
+        as: 'PostAudios',
+      },
+      {
         model: models.Video,
-        attributes: ['id','formats','updated_at','viewable'],
+        attributes: ['id','formats','updated_at','viewable','public_meta'],
         as: 'PostVideos',
         required: false,
         include: [

@@ -23,8 +23,7 @@ if (process.env.NODE_ENV === 'production') {
       // ssl: config.ssl
         ssl: false
     },
-    //logging: true
-    logging: false
+    logging: process.env.DISABLE_DEV_DB_LOGGING ? false : true,
   }));
 }
 

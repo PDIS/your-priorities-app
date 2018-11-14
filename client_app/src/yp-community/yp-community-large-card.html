@@ -19,7 +19,7 @@
 
 <link rel="import" href="../yp-behaviors/yp-large-card-behaviors.html">
 <link rel="import" href="../yp-behaviors/yp-goto-behavior.html">
-<link rel="import" href="../yp-behaviors/yp-image-formats-behavior.html">
+<link rel="import" href="../yp-behaviors/yp-media-formats-behavior.html">
 
 <link rel="import" href="yp-community-behaviors.html">
 <link rel="import" href="yp-community-stats.html">
@@ -245,7 +245,7 @@
         </div>
         <div hidden$="[[community.configuration.welcomeHTML]]">
           <template is="dom-if" if="[[communityVideoURL]]" restamp>
-            <video id="videoPlayer" controls class="image pointer" src="[[communityVideoURL]]"></video>
+            <video id="videoPlayer" data-id$="[[communityVideoId]]" controls preload="meta" class="image pointer" src="[[communityVideoURL]]" playsinline poster="[[communityVideoPosterURL]]"></video>
           </template>
           <template is="dom-if" if="[[!communityVideoURL]]">
             <iron-image class="image" sizing="cover" src$="[[communityLogoImagePath]]"></iron-image>
@@ -291,7 +291,7 @@
     </div>
     <iron-media-query query="(max-width: 800px)" query-matches="{{narrowScreen}}"></iron-media-query>
     <lite-signal on-lite-signal-got-admin-rights="_gotAdminRights"></lite-signal>
-    <lite-signal on-lite-signal-yp-pause-video="_pauseVideo"></lite-signal>
+    <lite-signal on-lite-signal-yp-pause-media-playback="_pauseMediaPlayback"></lite-signal>
   </template>
 
   <script>
@@ -306,7 +306,7 @@
         Polymer.ypGotAdminRightsBehavior,
         Polymer.ypGotoBehavior,
         Polymer.ypTruncateBehavior,
-        Polymer.ypImageFormatsBehavior
+        Polymer.ypMediaFormatsBehavior
       ],
 
       properties: {
@@ -326,26 +326,46 @@
           value: false,
           computed: '_showMenuItem(hasCommunityAccess, community)'
         },
+
         communityVideoURL: {
           type: String,
           computed: '_communityVideoURL(community)'
-        }
-      },
+        },
 
-      _pauseVideo: function () {
-        var videoPlayer = this.$$("#videoPlayer");
-        if (videoPlayer) {
-          videoPlayer.pause();
-        }
+        communityVideoPosterURL: {
+          type: String,
+          computed: '_communityVideoPosterURL(community)'
+        },
+
+        communityVideoId: Number
       },
 
       _communityVideoURL: function (community) {
         if (community &&
           community.configuration.useVideoCover &&
-          community.CommunityLogoVideos &&
-          community.CommunityLogoVideos.length>0 &&
-          community.CommunityLogoVideos[0].viewable) {
-          return community.CommunityLogoVideos[0].formats[0]
+          community.CommunityLogoVideos) {
+          var videoURL = this._getVideoURL(community.CommunityLogoVideos);
+          if (videoURL) {
+            this.set('communityVideoId', community.CommunityLogoVideos[0].id);
+            return videoURL;
+          } else {
+            return null;
+          }
+        } else {
+          return null;
+        }
+      },
+
+      _communityVideoPosterURL: function (community) {
+        if (community &&
+          community.configuration.useVideoCover &&
+          community.CommunityLogoVideos) {
+          var videoPosterURL = this._getVideoPosterURL(community.CommunityLogoVideos);
+          if (videoPosterURL) {
+            return videoPosterURL;
+          } else {
+            return null;
+          }
         } else {
           return null;
         }
@@ -355,7 +375,7 @@
         return hasCommunityAccess || (community && !community.only_admins_can_create_groups)
       },
 
-      _communityChanged: function (community) {
+      _communityChanged: function (community, previousCommunity) {
         if (community && community.description) {
           this.async(function () {
             if (community.configuration && community.configuration.welcomeHTML &&
@@ -375,6 +395,7 @@
             this.$$("#description").style.fontSize = "16px";
           }
         }
+        this.setupMediaEventListeners(community, previousCommunity);
       },
 
       _hasCommunityAccess: function(community, gotAdminRights) {

@@ -17,6 +17,7 @@ Example:
 -->
 
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../yp-app-globals/yp-app-icons.html">
 <link rel="import" href="../yp-behaviors/yp-language-behavior.html">
@@ -92,14 +93,56 @@ Example:
        ::slotted(iron-icon) {
          padding-right: 6px;
        }
+
+       .mainContainer {
+         @apply --layout-center-center;
+         width: 100%;
+       }
+
+       .removeButton {
+         margin-bottom: 12px;
+       }
+
+       .previewFrame {
+         max-height: 50px;
+         max-width: 89px;
+         height: 50px;
+         width: 89px;
+         cursor: pointer;
+       }
+
+       .videoImages {
+         overflow-x: auto;
+         width: 200px;
+         max-height: 70px;
+         height: 70px;
+       }
+
+       .videoPreviewContainer {
+       }
+
+       .selectedCover {
+         border-top: 2px solid var(--accent-color);
+         max-height: 50px;
+         max-width: 89px;
+         white-space: nowrap;
+       }
+
+       .coverImage {
+         max-height: 50px;
+         max-width: 89px;
+         white-space: nowrap;
+       }
       </style>
 
-    <div class="layout vertical center-center">
-      <paper-button id="button" icon="file-upload" class="blue" on-click="_fileClick">
-        <slot></slot>
-      </paper-button>
+    <div class="layout vertical center-center mainContainer">
+      <div class="layout horizontal">
+        <paper-button id="button" icon="file-upload" class="blue" on-click="_fileClick">
+          <slot></slot>
+        </paper-button>
+        <paper-icon-button class="removeButton" icon="delete" on-tap="clear" hidden$="[[!currentFile]]"></paper-icon-button>
+      </div>
       <div id="UploadBorder">
-        <div id="dropArea" hidden$="{{!_shownDropText}}">{{dropText}}</div>
         <template is="dom-repeat" items="{{files}}">
           <div class="file">
             <div class="name">
@@ -116,11 +159,23 @@ Example:
             </div>
           </div>
         </template>
+        <template is="dom-if" if="[[videoImages]]" restamp>
+          <video hidden controls class="previewVideo" url="[[previewVideoUrl]]"></video>
+          <div class="layout horizontal videoImages videoPreviewContainer">
+            <div style="white-space: nowrap">
+              <template is="dom-repeat" items="[[videoImages]]" as="image">
+                 <img class$="[[_classFromImageIndex(index)]]" data-index$="[[index]]" on-tap="_selectVideoCover" sizing="cover" class="previewFrame" src="[[image]]"/>
+              </template>
+            </div>
+          </div>
+        </template>
       </div>
       <yp-ajax hidden id="transcodePollingAjax" method="PUT" on-response="_transcodePollingResponse"></yp-ajax>
       <yp-ajax hidden id="startTranscodeAjax" method="POST" on-response="_startTranscodeResponse"></yp-ajax>
+      <yp-ajax hidden id="getVideoMetaAjax" on-response="_getVideoMetaResponse"></yp-ajax>
+      <yp-ajax hidden id="setVideoCoverAjax" method="PUT"></yp-ajax>
     </div>
-    <input type="file" id="fileInput" on-change="_fileChange" accept$="[[accept]]" hidden multiple="{{multi}}">
+    <input type="file" id="fileInput" capture$="[[capture]]" on-change="_fileChange" accept$="[[accept]]" hidden multiple="{{multi}}">
     <!--<paper-toast id="toastSuccess" text="File uploaded successfully!"></paper-toast>
     <paper-toast id="toastFail" text="Error uploading file!"></paper-toast>-->
   </template>
@@ -284,11 +339,22 @@ Example:
         value: false
       },
 
+      audioUpload: {
+        type: Boolean,
+        value: false
+      },
+
       currentVideoId: Number,
+
+      currentAudioId: Number,
 
       transcodingJobId: Number,
 
-      currentFile: String,
+      currentFile: {
+        type: String,
+        value: null,
+        notify: true
+      },
 
       isPollingForTranscoding: {
         type: Boolean,
@@ -311,7 +377,35 @@ Example:
 
       group: Object,
 
-      containerType: String
+      capture: {
+        type: Boolean,
+        value: false
+      },
+
+      containerType: String,
+
+      previewVideoUrl: {
+        type: String,
+        value: null
+      },
+
+      videoImages: {
+        type: Array,
+        value: null
+      },
+
+      selectedVideoCoverIndex: {
+        type: Number,
+        value: 0
+      }
+    },
+
+    _classFromImageIndex: function (index) {
+      if (index == this.selectedVideoCoverIndex) {
+        return 'selectedCover';
+      } else {
+        return "coverImage";
+      }
     },
 
     /**
@@ -322,9 +416,20 @@ Example:
       this._showDropText();
       this.set('uploadStatus', null);
       this.set('currentVideoId', null);
+      this.set('currentAudioId', null);
       this.set('currentFile', null);
       this.set('transcodingJobId', null);
       this.set('indeterminateProgress', false);
+      this.set('capture', false);
+      this.set('previewVideoUrl', null);
+      this.set('videoImages', null);
+      this.set('isPollingForTranscoding', false);
+
+      this.$.fileInput.value = null;
+      if (this.videoUpload)
+        this.fire("success", { detail: null, videoId: null });
+      else if (this.audioUpload)
+        this.fire("success", { detail: null, audioId: null });
     },
 
     ready: function() {
@@ -340,6 +445,10 @@ Example:
       }
       if (this.videoUpload) {
         this.set('accept','video/*')
+        this.set('capture', true);
+      } else if (this.audioUpload) {
+        this.set('accept','audio/*')
+        this.set('capture', true);
       }
     },
 
@@ -448,21 +557,32 @@ Example:
     },
 
     uploadFile: function (file) {
-      if (this.videoUpload) {
-        window.appGlobals.activity('starting', 'videoUpload');
-        this.set('uploadStatus', this.t("uploadingVideo"));
+      if (this.videoUpload || this.audioUpload) {
         this.set('indeterminateProgress', true);
-        this.currentFile = file;
-        this.headers =  {"Content-Type": 'video/mp4'};
+        this.set('currentFile', file);
         var ajax = document.createElement('iron-ajax');
         ajax.handleAs = 'json';
         ajax.contentType = 'application/json';
-        ajax.url = '/api/videos/createAndGetPreSignedUploadUrl';
+
+        if (this.videoUpload) {
+          window.appGlobals.activity('starting', 'videoUpload');
+          this.set('uploadStatus', this.t("uploadingVideo"));
+          this.headers =  {"Content-Type": 'video/mp4'};
+          ajax.url = '/api/videos/createAndGetPreSignedUploadUrl';
+        } else {
+          window.appGlobals.activity('starting', 'audioUpload');
+          this.set('uploadStatus', this.t("uploadingAudio"));
+          this.headers =  {"Content-Type": 'audio/mp4'};
+          ajax.url = '/api/audios/createAndGetPreSignedUploadUrl';
+        }
         ajax.method = 'POST';
         ajax.body = {};
         ajax.addEventListener('response', function (event) {
           this.target = event.detail.response.presignedUrl;
-          this.set('currentVideoId',  event.detail.response.videoId);
+          if (this.videoUpload)
+            this.set('currentVideoId',  event.detail.response.videoId);
+          else
+            this.set('currentAudioId',  event.detail.response.audioId);
           this.method = "PUT";
           this.set('indeterminateProgress', false);
           this.reallyUploadFile(this.currentFile);
@@ -481,12 +601,46 @@ Example:
       }, 1000);
     },
 
+    _getVideoMetaResponse: function (event, detail) {
+      if (detail.response.previewVideoUrl && detail.response.videoImages) {
+        this.set('previewVideoUrl', detail.response.previewVideoUrl);
+        this.set('videoImages', detail.response.videoImages);
+        this.set('uploadStatus', this.t('selectCoverImage'));
+      }
+    },
+
+    _getVideoMeta: function () {
+      if (this.currentVideoId) {
+        this.$.getVideoMetaAjax.url = "/api/videos/"+this.currentVideoId+"/formatsAndImages";
+        this.$.getVideoMetaAjax.generateRequest();
+      } else {
+        console.error("_getVideoImages no video id");
+      }
+    },
+
+    _selectVideoCover: function (event, detail) {
+      var frameIndex = event.target.getAttribute('data-index');
+      this.set('selectedVideoCoverIndex', frameIndex);
+      this.$.setVideoCoverAjax.url ="/api/videos/"+this.currentVideoId+'/setVideoCover';
+      this.$.setVideoCoverAjax.body = { frameIndex: frameIndex };
+      this.$.setVideoCoverAjax.generateRequest();
+      var videoImages = this.videoImages;
+      this.set('videoImages', null);
+      this.async(function () {
+        this.set('videoImages', videoImages);
+      });
+    },
+
     _transcodePollingResponse: function (event, detail) {
       var prefix = "files." + this.files.indexOf(this.currentFile);
       if (detail.response.status==="Complete") {
         this.set(prefix + ".complete", true);
         this.set('uploadStatus', this.t('uploadCompleted'));
-        this.fire("success", { detail: detail, videoId: this.currentVideoId });
+        if (this.videoUpload) {
+          this.fire("success", { detail: detail, videoId: this.currentVideoId });
+          this._getVideoMeta();
+        } else
+          this.fire("success", { detail: detail, audioId: this.currentAudioId });
         this.fire('file-upload-complete');
         window.appGlobals.activity('complete', 'mediaTranscoding');
       } else if (detail.error) {
@@ -503,7 +657,10 @@ Example:
     },
 
     _startTranscodeResponse: function (event, detail) {
-      this.$.transcodePollingAjax.url = '/api/videos/'+this.currentVideoId+'/getTranscodingJobStatus';
+      if (this.videoUpload)
+        this.$.transcodePollingAjax.url = '/api/videos/'+this.currentVideoId+'/getTranscodingJobStatus';
+      else
+        this.$.transcodePollingAjax.url = '/api/audios/'+this.currentAudioId+'/getTranscodingJobStatus';
       this.$.transcodePollingAjax.body = { jobId: detail.response.transcodingJobId };
       this._checkTranscodingJob();
     },
@@ -562,6 +719,26 @@ Example:
             this.$.startTranscodeAjax.generateRequest();
             window.appGlobals.activity('complete', 'videoUpload');
             window.appGlobals.activity('start', 'mediaTranscoding');
+          } else if (this.audioUpload) {
+            this.set('indeterminateProgress', true);
+            this.set('uploadStatus', this.t("transcodingAudio"));
+            this.$.startTranscodeAjax.url = '/api/audios/'+this.currentAudioId+'/startTranscoding';
+            let options;
+            if (this.containerType==="posts") {
+              options = {
+                audioPostUploadLimitSec: this.group.configuration.audioPostUploadLimitSec
+              }
+            } else if (this.containerType==="points") {
+              options = {
+                audioPointUploadLimitSec: this.group.configuration.audioPointUploadLimitSec
+              }
+            } else {
+              options = {}
+            }
+            this.$.startTranscodeAjax.body = options;
+            this.$.startTranscodeAjax.generateRequest();
+            window.appGlobals.activity('complete', 'audioUpload');
+            window.appGlobals.activity('start', 'mediaTranscoding');
           } else {
             this.set('uploadStatus', this.t('uploadCompleted'));
             self.fire('file-upload-complete');
@@ -580,7 +757,7 @@ Example:
         }
       }.bind(this);
 
-      if (this.videoUpload) {
+      if (this.videoUpload || this.audioUpload) {
         xhr.send(file)
       } else {
         xhr.send(formData);

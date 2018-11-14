@@ -12,6 +12,7 @@
 <link rel="import" href="../yp-behaviors/access-helpers.html">
 <link rel="import" href="../yp-behaviors/emoji-selector.html">
 <link rel="import" href="../yp-behaviors/yp-got-admin-rights-behavior.html">
+<link rel="import" href="../yp-behaviors/yp-media-formats-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-logged-in-user-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-goto-behavior.html">
 <link rel="import" href="../yp-magic-text/yp-magic-text.html">
@@ -35,11 +36,11 @@
         margin-top: 16px;
       }
 
-      #pointContent {
+      #pointContentTranscript, #pointContent {
         cursor: default;
       }
 
-      #pointContent[link-point] {
+      #pointContentTranscript, #pointContent[link-point] {
         cursor: pointer;
       }
 
@@ -107,15 +108,6 @@
         cursor: pointer;
       }
 
-      .playOverlay {
-        width: 90px;
-        height: 90px;
-        margin-top: -262px;
-        margin-left: 154px;
-        color: #EEE;
-        cursor: pointer;
-      }
-
       iron-image, video {
         width: 398px;
         height: 224px;
@@ -125,27 +117,61 @@
 
       @media (max-width: 600px) {
         iron-image, video {
-          width: 300px;
-          height: 169px;
-          margin: 0;
+          width: 100%;
+          margin: 0 !important;
           padding: 0;
+          height: initial;
+          vertical-align: top;
         }
 
-        .playOverlay {
-          width: 72px;
-          height: 72px;
-          margin-top: -202px;
-          margin-left: 114px;
-          color: #EEE;
-          cursor: pointer;
+        .actionContainer {
+          margin-left: 12px;
         }
+      }
+
+      #pointContentEditor {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+
+      .transcriptError {
+        margin-top: 8px;
+        color: #F00;
+      }
+
+      paper-spinner {
+        margin-top: 4px;
+      }
+
+      .checkTranscript {
+        margin-top: 8px;
+        padding: 8px;
+      }
+
+      .transcriptText {
+        margin-top: 0;
+        padding: 8px;
+        color: #444;
+        padding-bottom: 0;
+        font-style: italic;
+      }
+
+      .transcriptHeader {
+        color: #222;
+        margin-bottom: 2px;
+        font-style: normal;
+      }
+
+      audio {
+        margin-top: 16px;
+        margin-bottom: 16px;
       }
     </style>
 
     <lite-signal on-lite-signal-got-admin-rights="_gotAdminRights"></lite-signal>
     <lite-signal on-lite-signal-logged-in="_userLoggedIn"></lite-signal>
     <lite-signal on-lite-signal-yp-language="_languageEvent"></lite-signal>
-    <lite-signal on-lite-signal-yp-pause-video="_pauseVideo"></lite-signal>
+    <lite-signal on-lite-signal-yp-pause-media-playback="_pauseMediaPlayback"></lite-signal>
 
     <div class="layout vertical">
 
@@ -158,21 +184,46 @@
       </div>
 
       <div class="layout vertical">
-        <template is="dom-if" if="[[videoActive]]">
-          <div hidden$="[[!showVideo]]">
-            <video id="videoPlayer" controls preload="none" class="video" src="[[pointVideoPath]]"></video>
-          </div>
-          <div hidden$="[[showVideo]]">
-            <iron-image on-tap="_playVideo" sizing="cover" class="main-image pointer" src="[[pointImageVideoPath]]"></iron-image>
-            <iron-icon on-tap="_playVideo" icon="play-circle-outline" class="playOverlay"></iron-icon>
+        <template is="dom-if" if="[[videoActive]]" restamp>
+          <div class="layout horizontal center-center">
+            <video id="videoPlayer" data-id$="[[pointVideoId]]" controls preload="none" class="video" src="[[pointVideoPath]]" playsinline poster="[[pointImageVideoPath]]"></video>
           </div>
         </template>
-        <template is="dom-if" if="[[!videoActive]]">
+
+        <template is="dom-if" if="[[audioActive]]" restamp>
+          <div class="layout vertical center-center">
+            <audio id="audioPlayer" data-id$="[[pointAudioId]]" controls preload="meta" class="audio" src="[[pointAudioPath]]" playsinline></audio>
+          </div>
+        </template>
+
+        <template is="dom-if" if="[[videoOrAudioActive]]">
+          <template is="dom-if" if="[[checkingTranscript]]">
+            <div class="layout vertical center-center checkTranscript">
+              <div>[[t('checkingForTranscript')]]</div>
+              <paper-spinner active></paper-spinner>
+            </div>
+          </template>
+          <div class="transcriptError layout horizontal center-center" hidden$="[[!checkTranscriptError]]">
+            [[t('checkTranscriptError')]]
+          </div>
+          <template is="dom-if" if="[[point.latestContent]]">
+            <div class="transcriptText layout vertical center-center">
+              <div class="transcriptHeader">[[t('automaticTranscript')]]</div>
+              <div id="pointContentTranscript" link-point$="[[linkPoint]]" hidden$="[[isEditing]]" on-tap="_linkIfNeeded">
+                <yp-magic-text text-type="pointContent" content-language="[[point.language]]"
+                               content="[[point.latestContent]]" content-id="[[point.id]]">
+                </yp-magic-text>
+              </div>
+            </div>
+          </template>
+        </template>
+
+        <template is="dom-if" if="[[!videoOrAudioActive]]">
           <div class="point-content">
             <span hidden$="[[!point.name]]">
               <span>[[point.name]]</span>.
             </span>
-              <div id="pointContent" link-point$="[[linkPoint]]" hidden$="[[isEditing]]" on-tap="_linkIfNeeded">
+            <div id="pointContent" link-point$="[[linkPoint]]" hidden$="[[isEditing]]" on-tap="_linkIfNeeded">
               <yp-magic-text text-type="pointContent" content-language="[[point.language]]"
                              content="[[point.latestContent]]" content-id="[[point.id]]">
               </yp-magic-text>
@@ -193,7 +244,7 @@
         </template>
         <div class="layout horizontal actionContainer">
           <yp-point-actions point="[[point]]" point-url$="[[pointUrl]]"></yp-point-actions>
-          <paper-icon-button hidden$="[[!loggedInUser]]" title$="[[t('point.report')]]" id="reportPointIconButton" icon="warning" on-tap="_reportPoint"></paper-icon-button>
+          <paper-icon-button title$="[[t('point.report')]]" id="reportPointIconButton" icon="warning" on-tap="_reportPoint"></paper-icon-button>
           <div class="flex"></div>
           <template is="dom-if" if="[[hasPointAccess]]">
             <div class="layout horizontal self-end" hidden$="">
@@ -203,6 +254,7 @@
               <paper-icon-button title$="[[t('delete')]]" icon="clear" on-tap="_deletePoint"></paper-icon-button>
             </div>
           </template>
+          <yp-ajax hidden id="checkTranscriptStatusAjax" on-response="_transcriptStatusResponse"></yp-ajax>
         </div>
       </div>
     </div>
@@ -278,9 +330,25 @@
 
         pointImageVideoPath: String,
 
-        showVideo: {
+        pointVideoId: Number,
+
+        audioActive: {
           type: Boolean,
-          value: false,
+          value: false
+        },
+
+        pointAudioPath: String,
+
+        pointAudioId: Number,
+
+        videoOrAudioActive: {
+          type: Boolean,
+          computed: '_videoOrAudioActive(videoActive, audioActive)'
+        },
+
+        checkingTranscript: {
+          type: Boolean,
+          value: false
         }
       },
 
@@ -289,14 +357,12 @@
         Polymer.AccessHelpers,
         Polymer.ypLoggedInUserBehavior,
         Polymer.ypGotAdminRightsBehavior,
-        Polymer.ypGotoBehavior
+        Polymer.ypGotoBehavior,
+        Polymer.ypMediaFormatsBehavior
       ],
 
-      _pauseVideo: function () {
-        var videoPlayer = this.$$("#videoPlayer");
-        if (videoPlayer) {
-          videoPlayer.pause();
-        }
+      _videoOrAudioActive: function (videoActive, audioActive) {
+        return videoActive || audioActive;
       },
 
       _isEditingChanged: function (value) {
@@ -406,42 +472,81 @@
         return isEligible && window.appUser && window.appUser.user && window.appUser.user.id==point.user_id;
       },
 
-      _playVideo: function () {
-        this.set('showVideo', true);
-        var videoPlayer = this.$$("#videoPlayer");
-        if (videoPlayer) {
-          videoPlayer.play();
-        } else {
-          console.error("Can't find video player");
-        }
-      },
-
-      _pointChanged: function(point) {
+      _pointChanged: function(point, previousPoint) {
+        this.setupMediaEventListeners(point, previousPoint);
+        this._resetMedia();
         if (point) {
           this.set('user', this.point.User);
-          if (point.PointVideos &&
-            point.PointVideos.length>0 &&
-            point.PointVideos[0].formats &&
-            point.PointVideos[0].formats.length>0 &&
-            point.PointVideos[0].VideoImages &&
-            point.PointVideos[0].VideoImages.length>0) {
+          var videoURL = this._getVideoURL(point.PointVideos);
+          var videoPosterURL = this._getVideoPosterURL(point.PointVideos);
+          if (videoURL && videoPosterURL) {
             this.set('videoActive', true);
-            this.set('pointVideoPath',  point.PointVideos[0].formats[0]);
-            this.set('pointImageVideoPath', JSON.parse(point.PointVideos[0].VideoImages[0].formats)[0]);
+            this.set('pointVideoPath', videoURL);
+            this.set('pointImageVideoPath', videoPosterURL);
+            this.set('pointVideoId', point.PointVideos[0].id);
+            this.set('checkTranscriptError', false);
+            if (point.checkTranscriptFor==="video" && window.appGlobals.hasTranscriptSupport===true) {
+              this.$.checkTranscriptStatusAjax.url = "/api/points/"+point.id+'/videoTranscriptStatus';
+              this.$.checkTranscriptStatusAjax.generateRequest();
+              this.set('checkingTranscript', true);
+            }
           } else {
-            this._resetVideo();
+            var audioURL = this._getAudioURL(point.PointAudios);
+            if (audioURL) {
+              this.set('audioActive', true);
+              this.set('pointAudioPath', audioURL);
+              this.set('pointAudioId', point.PointAudios[0].id);
+              this.set('checkTranscriptError', false);
+              if (point.checkTranscriptFor==="audio" && window.appGlobals.hasTranscriptSupport===true) {
+                this.$.checkTranscriptStatusAjax.url = "/api/points/"+point.id+'/audioTranscriptStatus';
+                this.$.checkTranscriptStatusAjax.generateRequest();
+                this.set('checkingTranscript', true);
+              }
+            }
           }
         } else {
           this.set('user', null);
-          this._resetVideo();
+          this.set('checkTranscriptError', false);
         }
       },
 
-      _resetVideo: function () {
+
+      _transcriptStatusResponse: function (event, detail) {
+        detail = detail.response;
+        if (detail && detail.point) {
+          var point = detail.point;
+          this.set('checkingTranscript', false);
+          point.latestContent = point.PointRevisions[point.PointRevisions.length-1].content;
+          this.set('point', point);
+          if (this._hasPointAccess(point)) {
+            this.set('editText',  point.latestContent);
+            this.set('isEditing', true);
+          }
+          this.async(function () {
+            this.fire('iron-resize');
+          });
+        } else if (detail && detail.inProgress) {
+          this.async(function () {
+            this.$.checkTranscriptStatusAjax.generateRequest();
+          }, 2000);
+        } else if (detail && detail.error) {
+          debugger;
+          this.set('checkingTranscript', false);
+          this.set('checkTranscriptError', true);
+        } else {
+          debugger;
+          this.set('checkingTranscript', false);
+        }
+      },
+
+      _resetMedia: function () {
         this.set('videoActive', false);
-        this.set('showVideo', false);
         this.set('pointVideoPath', null);
         this.set('pointImageVideoPath', null);
+        this.set('pointVideoId', null);
+        this.set('audioActive', false);
+        this.set('pointAudioPath', null);
+        this.set('pointAudioId', null);
       },
 
       loginName: function () {
