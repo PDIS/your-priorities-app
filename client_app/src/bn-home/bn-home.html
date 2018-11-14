@@ -24,7 +24,7 @@
 <link rel="import" href="../yp-ajax/yp-ajax.html">
 <link rel="import" href="../bn-page/bn-page.html">
 <link rel="import" href="../yp-group/yp-group-collection-behaviors.html">
-<link rel="import" href="../yp-group/yp-group-grid.html">
+<link rel="import" href="../bn-news/bn-news-grid.html">
 
 <dom-module id="bn-home">
   <template>
@@ -36,6 +36,10 @@
 
       .card {
         padding: 16px;
+      }
+
+      .tab-wrapper {
+        display: none;
       }
 
       yp-ajax {
@@ -63,22 +67,22 @@
 
     <bn-page id="page" create-fab-icon="[[createFabIcon]]" create-fab-title="[[t('group.add')]]" on-yp-create-fab-tap="_newGroup">
 
-      <paper-tabs id="paper_tabs" apple$="[[isOldiOs]]" slot="tabs" class="tabs" selected="{{selectedTab}}" attr-for-selected="name" focused>
-        <paper-tab name="groups" class="tab"><span>[[t('groups')]]</span> &nbsp; (<span>[[groupsLength]]</span>)</paper-tab>
-        <paper-tab name="news" class="tab">[[t('news')]]</paper-tab>
-        <paper-tab name="map" class="tab" hidden$="[[locationHidden]]">[[t('posts.map')]]</paper-tab>
-      </paper-tabs>
+      <!--<paper-tabs id="paper_tabs" apple$="[[isOldiOs]]" slot="tabs" class="tabs" selected="{{selectedTab}}" attr-for-selected="name" focused>-->
+        <!--<paper-tab name="groups" class="tab"><span>[[t('groups')]]</span> &nbsp; (<span>[[groupsLength]]</span>)</paper-tab>-->
+        <!--<paper-tab name="news" class="tab">[[t('news')]]</paper-tab>-->
+        <!--<paper-tab name="map" class="tab" hidden$="[[locationHidden]]">[[t('posts.map')]]</paper-tab>-->
+      <!--</paper-tabs>-->
 
       <iron-pages class="tabPages" slot="tabPages" selected="{{selectedTab}}" attr-for-selected="name" entry-animation="fade-in-animation" exit-animation="fade-out-animation">
         <section name="groups">
           <div class="layout horizontal center-center wrap">
-            <yp-group-grid
+            <bn-news-grid
               featured-groups="[[featuredGroups]]"
               active-groups="[[activeGroups]]"
               archived-groups="[[archivedGroups]]"
               hide-add$="[[!createFabIcon]]"
               on-add-new-group="_newGroup">
-            </yp-group-grid>
+            </bn-news-grid>
           </div>
         </section>
         <section class="minHeightSection" name="news">

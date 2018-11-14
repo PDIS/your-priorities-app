@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="../../bower_components/iron-image/iron-image.html" >
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/lite-signal/lite-signal.html">
 
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
@@ -25,6 +25,7 @@
 <link rel="import" href="../yp-magic-text/yp-magic-text.html">
 
 <link rel="import" href="bn-news-stats.html">
+<link rel="import" href="bn-news-actions.html">
 <link rel="import" href="bn-news-behaviors.html">
 
 <dom-module id="bn-news-card-large">
@@ -67,6 +68,12 @@
         right: 8px;
       }
 
+      .actions {
+        position: absolute;
+        bottom: 0px;
+        right: 8px;
+      }
+
       .edit {
         color: #FFF;
         position: absolute;
@@ -81,7 +88,7 @@
       }
 
       .newCategory {
-        color: var( --primary-background-color,#F2F2F2);
+        color: var(--primary-background-color, #F2F2F2);
         position: absolute;
         top: 64px;
         right: 0;
@@ -91,7 +98,6 @@
         width: 432px;
         height: 243px;
       }
-
 
       .description {
         padding: 0;
@@ -221,25 +227,30 @@
                                content="[[group.objectives]]" content-id="[[group.id]]">
 
                 </yp-magic-text>
+              </div>
             </div>
+            <paper-menu-button class="edit" horizontal-align="[[editMenuAlign]]" hidden$="[[!showMenuItem]]">
+              <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
+              <paper-listbox slot="dropdown-content" on-iron-select="_menuSelection">
+                <paper-item hidden$="[[!hasGroupAccess]]" id="editMenuItem">[[t('group.edit')]]</paper-item>
+                <paper-item hidden$="[[!hasGroupAccess]]" id="newCategoryMenuItem">[[t('category.new')]]</paper-item>
+                <paper-item hidden$="[[!hasGroupAccess]]" id="usersMenuItem">[[t('group.users')]]</paper-item>
+                <paper-item hidden$="[[!hasGroupAccess]]" id="adminsMenuItem">[[t('group.admins')]]</paper-item>
+                <paper-item hidden$="[[!hasGroupAccess]]" id="pagesMenuItem">[[t('pages.managePages')]]</paper-item>
+                <a hidden$="[[!hasGroupAccess]]" target="_blank" href="/api/groups/[[group.id]]/export_group">
+                  <paper-item id="exportMenuItem">[[t('exportGroup')]]</paper-item>
+                </a>
+                <paper-item hidden$="[[!hasGroupAccess]]" id="deleteMenuItem">[[t('group.delete')]]</paper-item>
+                <paper-item hidden$="[[!hasGroupAccess]]" id="anonymizeMenuItem">[[t('anonymizeGroupContent')]]
+                </paper-item>
+                <paper-item hidden$="[[!hasGroupAccess]]" id="deleteContentMenuItem">[[t('deleteGroupContent')]]
+                </paper-item>
+                <paper-item id="addPostMenuItem">[[t('post.new')]]</paper-item>
+              </paper-listbox>
+            </paper-menu-button>
           </div>
-          <paper-menu-button class="edit" horizontal-align="[[editMenuAlign]]" hidden$="[[!showMenuItem]]">
-            <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
-            <paper-listbox slot="dropdown-content" on-iron-select="_menuSelection">
-              <paper-item hidden$="[[!hasGroupAccess]]" id="editMenuItem">[[t('group.edit')]]</paper-item>
-              <paper-item hidden$="[[!hasGroupAccess]]" id="newCategoryMenuItem">[[t('category.new')]]</paper-item>
-              <paper-item hidden$="[[!hasGroupAccess]]" id="usersMenuItem">[[t('group.users')]]</paper-item>
-              <paper-item hidden$="[[!hasGroupAccess]]" id="adminsMenuItem">[[t('group.admins')]]</paper-item>
-              <paper-item hidden$="[[!hasGroupAccess]]" id="pagesMenuItem">[[t('pages.managePages')]]</paper-item>
-              <a hidden$="[[!hasGroupAccess]]" target="_blank" href="/api/groups/[[group.id]]/export_group"><paper-item id="exportMenuItem">[[t('exportGroup')]]</paper-item></a>
-              <paper-item hidden$="[[!hasGroupAccess]]" id="deleteMenuItem">[[t('group.delete')]]</paper-item>
-              <paper-item hidden$="[[!hasGroupAccess]]" id="anonymizeMenuItem">[[t('anonymizeGroupContent')]]</paper-item>
-              <paper-item hidden$="[[!hasGroupAccess]]" id="deleteContentMenuItem">[[t('deleteGroupContent')]]</paper-item>
-              <paper-item id="addPostMenuItem">[[t('post.new')]]</paper-item>
-            </paper-listbox>
-          </paper-menu-button>
+          <bn-news-actions class="actions" group="[[group]]"></bn-news-actions>
         </div>
-        <bn-news-stats class="stats" group="[[group]]"></bn-news-stats>
       </paper-material>
     </div>
     <iron-media-query query="(max-width: 800px)" query-matches="{{narrowScreen}}"></iron-media-query>
@@ -299,10 +310,10 @@
 
       _groupVideoURL: function (group) {
         if (group &&
-            group.configuration.useVideoCover &&
-            group.GroupLogoVideos &&
-            group.GroupLogoVideos.length>0 &&
-            group.GroupLogoVideos[0].viewable) {
+          group.configuration.useVideoCover &&
+          group.GroupLogoVideos &&
+          group.GroupLogoVideos.length > 0 &&
+          group.GroupLogoVideos[0].viewable) {
           return group.GroupLogoVideos[0].formats[0]
         } else {
           return null;
@@ -310,12 +321,12 @@
       },
 
       _showMenuItem: function (hasGroupAccess, group) {
-        return hasGroupAccess || (group && group.configuration && group.configuration.canAddNewPosts===true)
+        return hasGroupAccess || (group && group.configuration && group.configuration.canAddNewPosts === true)
       },
 
-      _hasGroupAccess: function(group, gotAdminRights) {
+      _hasGroupAccess: function (group, gotAdminRights) {
         if (group && gotAdminRights) {
-          return (this.checkGroupAccess(group)!=null);
+          return (this.checkGroupAccess(group) != null);
         } else {
           return false;
         }
@@ -326,14 +337,14 @@
       },
 
       _groupChanged: function (group) {
-        if (group && group.objectives && group.objectives.length>220) {
+        if (group && group.objectives && group.objectives.length > 220) {
           this.$$("#objectives").style.fontSize = "15px";
         } else {
           this.$$("#objectives").style.fontSize = "16px";
         }
       },
 
-      _groupAccessText: function(group, language) {
+      _groupAccessText: function (group, language) {
         if (group && language) {
           switch (group.access) {
             case 0: // Public
@@ -352,23 +363,23 @@
       },
 
       _menuSelection: function (event, detail) {
-        if (detail.item.id==="editMenuItem")
+        if (detail.item.id === "editMenuItem")
           this._openEdit();
-        else if (detail.item.id==="newCategoryMenuItem")
+        else if (detail.item.id === "newCategoryMenuItem")
           this._openCategoryEdit();
-        else if (detail.item.id==="deleteMenuItem")
+        else if (detail.item.id === "deleteMenuItem")
           this._openDelete();
-        else if (detail.item.id==="usersMenuItem")
+        else if (detail.item.id === "usersMenuItem")
           this._openUsersDialog();
-        else if (detail.item.id==="adminsMenuItem")
+        else if (detail.item.id === "adminsMenuItem")
           this._openAdminsDialog();
-        else if (detail.item.id==="pagesMenuItem")
+        else if (detail.item.id === "pagesMenuItem")
           this._openPagesDialog();
-        else if (detail.item.id==="addPostMenuItem")
+        else if (detail.item.id === "addPostMenuItem")
           this.fire('yp-post-new');
-        else if (detail.item.id==="deleteContentMenuItem")
+        else if (detail.item.id === "deleteContentMenuItem")
           this._openDeleteContent();
-        else if (detail.item.id==="anonymizeMenuItem")
+        else if (detail.item.id === "anonymizeMenuItem")
           this._openAnonymizeContent();
         this.$$("paper-listbox").select(null);
       },
@@ -409,7 +420,7 @@
 
       _refreshGroup: function (groupId, callback) {
         var ajax = document.createElement('iron-ajax');
-        ajax.url = '/api/groups/'+groupId;
+        ajax.url = '/api/groups/' + groupId;
         ajax.handleAs = 'json';
         ajax.contentType = 'application/json';
         ajax.body = {};
@@ -464,11 +475,11 @@
 
       _onDeleted: function () {
         this.dispatchEvent(new CustomEvent('yp-refresh-community', {bubbles: true, composed: true}));
-        this.redirectTo("/community/"+this.group.community_id);
+        this.redirectTo("/community/" + this.group.community_id);
       },
 
       _newCategory: function () {
-        this.$$("#newCategory").open('new', { groupId: this.group.id });
+        this.$$("#newCategory").open('new', {groupId: this.group.id});
       },
 
       _refresh: function (group) {

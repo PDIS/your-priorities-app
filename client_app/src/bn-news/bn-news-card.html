@@ -8,7 +8,7 @@
 
 <link rel="import" href="../yp-app-globals/yp-app-icons.html">
 <link rel="import" href="../yp-behaviors/yp-language-behavior.html">
-<link rel="import" href="bn-news-stats.html">
+<link rel="import" href="bn-news-actions.html">
 <link rel="import" href="bn-news-behaviors.html">
 <link rel="import" href="../yp-membership-button/yp-membership-button.html">
 <link rel="import" href="../yp-behaviors/yp-truncate-behavior.html">
@@ -16,7 +16,7 @@
 <link rel="import" href="../yp-behaviors/yp-goto-behavior.html">
 <link rel="import" href="../yp-magic-text/yp-magic-text.html">
 
-<dom-module id="yp-group-card">
+<dom-module id="bn-news-card">
 
   <template>
 
@@ -44,7 +44,7 @@
         padding: 16px;
       }
 
-      .stats {
+      .actions {
         position: absolute;
         bottom: 0px;
         right: 8px;
@@ -56,8 +56,8 @@
 
       iron-image[archived] {
         opacity: 0.85;
-        filter: alpha(opacity=85);  }
-
+        filter: alpha(opacity=85);
+      }
 
       .post-image {
       }
@@ -81,13 +81,18 @@
         vertical-align: text-top;
       }
 
+      .authorImage {
+        height: 60px;
+        width: 60px;
+      }
+
       .group-name {
         margin: 0;
         font-size: var(--large-heading-size, 26px);
         height: 45px;
         padding: 14px;
-        background-color: var(--primary-color-800);
-        color: #FFF;
+        /*background-color: var(--primary-color-800);*/
+        /*color: #FFF;*/
         font-weight: bold;
         cursor: pointer;
         vertical-align: middle;
@@ -114,6 +119,10 @@
       }
 
       .objectives {
+        padding: 8px;
+      }
+
+      .editors {
         padding: 8px;
       }
 
@@ -154,31 +163,77 @@
     <template is="dom-if" if="[[group]]">
       <paper-card class="groupCard" animated elevation="[[elevation]]" class="groupCard">
         <template is="dom-if" if="[[noImage]]">
-          <iron-image header-mode$="[[headerMode]]" archived$="[[archived]]" sizing="cover" class="main-image withPointer" src="https://i.imgur.com/sdsFAoT.png" on-tap="_goToGroup"></iron-image>
+          <iron-image header-mode$="[[headerMode]]" archived$="[[archived]]" sizing="cover"
+                      class="main-image withPointer" src="https://i.imgur.com/sdsFAoT.png"
+                      on-tap="_goToGroup"></iron-image>
         </template>
         <template is="dom-if" if="[[!noImage]]">
-          <iron-image archived$="[[archived]]" class="logo withPointer" sizing="cover" on-tap="_goToGroup" preload src="[[groupLogoImagePath]]"></iron-image>
+          <iron-image archived$="[[archived]]" class="logo withPointer" sizing="cover" on-tap="_goToGroup" preload
+                      src="[[groupLogoImagePath]]"></iron-image>
         </template>
-        <div id="groupName" class="group-name" archived$="[[archived]]" featured$="[[featured]]" on-tap="_goToGroup">
-          <yp-magic-text text-type="groupName" content-language="[[group.language]]"
-                         disable-translation="[[group.configuration.disableNameAutoTranslation]]"
-                         text-only content="[[groupName]]" content-id="[[group.id]]">
-          </yp-magic-text>
-          <span hidden$="[[!archived]]">- [[t('archived')]]</span>
-        </div>
-        <yp-magic-text id="objectives" class="objectives withPointer" on-tap="_goToGroup"
-                       text-type="groupContent" content-language="[[group.language]]"
-                       text-only content="[[groupObjectives]]" content-id="[[group.id]]" truncate="200">
-        </yp-magic-text>
-        <bn-news-stats class="stats" group="[[group]]"></bn-news-stats>
-        <yp-membership-button archived$="[[archived]]" group="[[group]]"></yp-membership-button>
+        <table>
+          <tbody>
+          <tr>
+            <td rowspan="2">
+              <img class="authorImage" id="author_image">
+            </td>
+            <td>
+              <div id="groupName" class="group-name" archived$="[[archived]]" featured$="[[featured]]"
+                   on-tap="_goToGroup">
+                <yp-magic-text text-type="groupName" content-language="[[group.language]]"
+                               disable-translation="[[group.configuration.disableNameAutoTranslation]]"
+                               text-only content="[[groupName]]" content-id="[[group.id]]">
+                </yp-magic-text>
+                <span hidden$="[[!archived]]">- [[t('archived')]]</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="editors">
+                <span>[[t('group.author_is')]]</span>
+                <span id="author_name">...</span>
+                <span> | </span>
+                <span>[[groupCollaborators]]</span>
+                <span>[[t('group.collaborators')]]</span>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <table>
+          <tbody>
+          <tr>
+            <td>
+              <yp-magic-text id="tags" class="groupTags"
+                             text-type="groupContent" content-language="[[group.language]]"
+                             content="[[groupTags]]" content-id="[[group.id]]">
+              </yp-magic-text>
+
+              <!--<yp-magic-text id="objectives" class="objectives withPointer" on-tap="_goToGroup"-->
+              <!--text-type="groupContent" content-language="[[group.language]]"-->
+              <!--text-only content="[[groupObjectives]]" content-id="[[group.id]]" truncate="200">-->
+              <!--</yp-magic-text>-->
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div>
+                <span>50%</span> <span>[[t('group.trust_rate')]]</span>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <!--<yp-membership-button archived$="[[archived]]" group="[[group]]"></yp-membership-button>-->
+        <bn-news-actions class="actions" group="[[group]]"></bn-news-actions>
       </paper-card>
     </template>
   </template>
 
   <script>
     Polymer({
-      is: 'yp-group-card',
+      is: 'bn-news-card',
 
       behaviors: [
         Polymer.ypLanguageBehavior,
@@ -186,7 +241,19 @@
         Polymer.ypTruncateBehavior,
         Polymer.ypImageFormatsBehavior,
         Polymer.ypGotoBehavior
-      ]
+      ],
+
+      properties: {
+        groupCollaborators: {
+          type: Number,
+          value: 200 // FIXME
+        }
+
+      },
+
+      ready: function () {
+      }
+
     });
   </script>
 </dom-module>

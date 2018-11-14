@@ -531,7 +531,11 @@
     "canVote": "Voting allowed",
     "canAddNewPosts": "New snippets allowed",
     "config": "Config",
-    "update": "Update thread"
+    "update": "Update thread",
+    "trust_level": "Trust level",
+    "collaborators": "collaborators",
+    "author_is": "Author - ",
+    "trust_rate": "article trust rate"
   },
 
   "membership": {

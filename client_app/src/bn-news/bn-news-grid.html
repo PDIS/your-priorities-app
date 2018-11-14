@@ -7,9 +7,9 @@
 <link rel="import" href="../yp-behaviors/yp-iron-list-behavior.html">
 <link rel="import" href="../yp-behaviors/yp-card-mouse-behavior.html">
 
-<link rel="import" href="yp-group-card.html">
+<link rel="import" href="bn-news-card.html">
 
-<dom-module id="yp-group-grid">
+<dom-module id="bn-news-grid">
 
   <template>
 
@@ -42,7 +42,7 @@
       <iron-list id="ironList" scroll-offset="350" items="[[activeGroups]]" as="group" scroll-target="document" grid>
         <template>
           <div class="groupCard" tabindex$="[[tabIndex]]" wide-padding$="[[wide]]">
-            <yp-group-card wide-padding$="[[wide]]" group="[[group]]" on-mouseover="cardMouseOver" on-mouseout="cardMouseOut"></yp-group-card>
+            <bn-news-card wide-padding$="[[wide]]" group="[[group]]" on-mouseover="cardMouseOver" on-mouseout="cardMouseOut"></bn-news-card>
           </div>
         </template>
       </iron-list>
@@ -51,7 +51,7 @@
 
   <script>
     Polymer({
-      is: 'yp-group-grid',
+      is: 'bn-news-grid',
 
       behaviors: [
         Polymer.ypLanguageBehavior,

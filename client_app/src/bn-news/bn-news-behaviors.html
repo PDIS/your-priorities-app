@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
 
 <script>
   /**
@@ -64,16 +65,15 @@
 
     _groupChanged: function (group) {
       if (group) {
-        if (group.GroupLogoImages && group.GroupLogoImages.length>0)
-        {
+        if (group.GroupLogoImages && group.GroupLogoImages.length > 0) {
           this.set('noImage', false);
         } else {
           this.set('noImage', true);
         }
 
-        if (group.status=='featured') {
+        if (group.status == 'featured') {
           this.set('featured', true);
-        } else if (group.status=='archived') {
+        } else if (group.status == 'archived') {
           this.set('archived', true);
         } else {
           this.set('featured', false);
@@ -84,23 +84,23 @@
           var groupName = this.$$("#groupName");
           if (groupName) {
             if (this.wide) {
-              if (group.name.length<=18) {
+              if (group.name.length <= 18) {
                 groupName.style.fontSize = "30px";
-              } else if (group.name.length>40) {
+              } else if (group.name.length > 40) {
                 groupName.style.fontSize = "22px";
-              } else if (group.name.length>30) {
+              } else if (group.name.length > 30) {
                 groupName.style.fontSize = "24px";
-              } else if (group.name.length>18) {
+              } else if (group.name.length > 18) {
                 groupName.style.fontSize = "26px";
               }
             } else {
-              if (group.name.length<=18) {
+              if (group.name.length <= 18) {
                 groupName.style.fontSize = "28px";
-              } else if (group.name.length>40) {
+              } else if (group.name.length > 40) {
                 groupName.style.fontSize = "19px";
-              } else if (group.name.length>30) {
+              } else if (group.name.length > 30) {
                 groupName.style.fontSize = "22px";
-              } else if (group.name.length>18) {
+              } else if (group.name.length > 18) {
                 groupName.style.fontSize = "24px";
               }
             }
@@ -109,11 +109,28 @@
               var fontSizePixels = groupName.style.fontSize.replace("px", "");
               fontSizePixels = parseInt(fontSizePixels);
               fontSizePixels = fontSizePixels - 3;
-              groupName.style.fontSize = fontSizePixels+"px";
+              groupName.style.fontSize = fontSizePixels + "px";
             }
           }
-        });
 
+          var authorName = this.$$('#author_name');
+          var authorImage = this.$$('#author_image');
+          if (authorImage != null && authorName != null) {
+            $.ajax('/api/users/' + group.user_id,
+              {
+                success: function(user) {
+                  authorName.innerHTML = user.name;
+                  if (user.UserProfileImages.length > 0) {
+                    authorImage.src = JSON.parse(user.UserProfileImages[0].formats)[0];
+                  }
+                },
+                error: function(xhr, errTxt, error) {
+                  console.log('Error while getting user: ' + errTxt);
+                  console.log(error);
+                }
+              });
+          }
+        });
       } else {
         this.set('featured', false);
         this.set('archived', false);
@@ -161,9 +178,9 @@
           var ret = '';
           for (var i in group.tags) {
             if (i > 0) {
-              ret += '&nbsp;';
+              ret += '・';
             }
-            ret += '#' + group.tags[i];
+            ret += group.tags[i];
           }
           return this.truncate(ret);
         } else {
