@@ -34,25 +34,25 @@
       :host {
       }
 
-      .groupAccess {
+      .userAccess {
         padding-bottom: 8px;
       }
 
-      .group-name {
+      .user-name {
         padding-bottom: 4px;
         margin: 0;
         font-size: 24px;
         font-weight: 700;
       }
 
-      .group-name[admin] {
+      .user-name[admin] {
         padding-right: 16px;
       }
 
       .objectives {
       }
 
-      .groupCard {
+      .userCard {
         background-color: #fefefe;
         color: #333;
         height: 243px;
@@ -103,26 +103,26 @@
         margin: 0;
       }
 
-      .groupDescription {
+      .userDescription {
         padding-left: 16px;
         padding-right: 16px;
         padding-top: 8px;
-        font-size: var(--group-description-font-size, 16px);
+        font-size: var(--user-description-font-size, 16px);
       }
 
-      .groupTags {
+      .userTags {
         padding-left: 16px;
         padding-right: 16px;
-        font-size: var(--group-description-font-size, 16px);
+        font-size: var(--user-description-font-size, 16px);
         padding-top: 16px;
         padding-bottom: 0px;
       }
 
-      .groupCreator {
+      .userCreator {
 
       }
 
-      .group-name {
+      .user-name {
         background-color: var(--primary-color-800, #000);
         color: #fafafa;
         padding-left: 16px;
@@ -142,7 +142,7 @@
           width: 306px;
         }
 
-        .groupCard {
+        .userCard {
           margin-bottom: 16px;
           width: 306px;
           height: 100%;
@@ -165,12 +165,12 @@
           height: 172px !important;
         }
 
-        .group-name {
+        .user-name {
           font-size: 20px;
           min-height: 24px;
         }
 
-        .groupDescription {
+        .userDescription {
           padding-top: 4px;
           padding-bottom: 42px;
         }
@@ -195,66 +195,32 @@
     <lite-signal on-lite-signal-yp-language="_languageEvent"></lite-signal>
     <lite-signal on-lite-signal-yp-pause-video="_pauseVideo"></lite-signal>
 
-    <div>qqqqqqqqqqqqqqqqqqqqqqqqqqq</div>
     <div class="layout horizontal center-center wrap">
-      <paper-material id="cardImage" elevation="3" animated class="groupCard imageCard top-card">
-        <template is="dom-if" if="[[groupVideoURL]]" restamp>
-          <video id="videoPlayer" controls class="logo" src="[[groupVideoURL]]"></video>
-        </template>
-        <template is="dom-if" if="[[!groupVideoURL]]">
-          <iron-image class="logo" sizing="cover" preload src="[[groupLogoImagePath]]"></iron-image>
-        </template>
-      </paper-material>
-      <paper-material id="card" elevation="3" animated-shadow class="groupCard textBox">
+      <paper-material id="card" elevation="3" animated-shadow class="userCard textBox">
         <div class="layout vertical">
           <div class="layout horizontal wrap">
             <div class="layout vertical description-and-stats">
               <div class="description">
-                <div class="group-name" admin$="[[hasGroupAccess]]">
-                  <yp-magic-text id="groupName" text-type="groupName" content-language="[[group.language]]"
-                                 disable-translation="[[group.configuration.disableNameAutoTranslation]]"
-                                 text-only content="[[groupName]]" content-id="[[group.id]]">
-                  </yp-magic-text>
-                  <a href="/somewhere-to-the-user-page">[[t(from)]] [[group.user_name]]</a>
+                <div class="user-name">
+                  <div id="userName">[[user.name]]</div>
+                  <a href="/somewhere-to-the-user-page">[[t(from)]] [[user.user_name]]</a>
                 </div>
-                <div hidden class="groupAccess">[[groupAccessText]]</div>
-                <yp-magic-text id="tags" class="groupTags"
-                               text-type="groupContent" content-language="[[group.language]]"
-                               content="[[groupTags]]" content-id="[[group.id]]">
+                <yp-magic-text id="tags" class="userTags"
+                               text-type="userContent" content-language="[[user.language]]"
+                               content="[[userTags]]" content-id="[[user.id]]">
                 </yp-magic-text>
-                <yp-magic-text id="objectives" class="groupDescription"
-                               text-type="groupContent" content-language="[[group.language]]"
-                               content="[[group.objectives]]" content-id="[[group.id]]">
+                <yp-magic-text id="objectives" class="userDescription"
+                               text-type="userContent" content-language="[[user.language]]"
+                               content="[[user.objectives]]" content-id="[[user.id]]">
 
                 </yp-magic-text>
               </div>
             </div>
-            <paper-menu-button class="edit" horizontal-align="[[editMenuAlign]]" hidden$="[[!showMenuItem]]">
-              <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
-              <paper-listbox slot="dropdown-content" on-iron-select="_menuSelection">
-                <paper-item hidden$="[[!hasGroupAccess]]" id="editMenuItem">[[t('group.edit')]]</paper-item>
-                <paper-item hidden$="[[!hasGroupAccess]]" id="newCategoryMenuItem">[[t('category.new')]]</paper-item>
-                <paper-item hidden$="[[!hasGroupAccess]]" id="usersMenuItem">[[t('group.users')]]</paper-item>
-                <paper-item hidden$="[[!hasGroupAccess]]" id="adminsMenuItem">[[t('group.admins')]]</paper-item>
-                <paper-item hidden$="[[!hasGroupAccess]]" id="pagesMenuItem">[[t('pages.managePages')]]</paper-item>
-                <a hidden$="[[!hasGroupAccess]]" target="_blank" href="/api/groups/[[group.id]]/export_group">
-                  <paper-item id="exportMenuItem">[[t('exportGroup')]]</paper-item>
-                </a>
-                <paper-item hidden$="[[!hasGroupAccess]]" id="deleteMenuItem">[[t('group.delete')]]</paper-item>
-                <paper-item hidden$="[[!hasGroupAccess]]" id="anonymizeMenuItem">[[t('anonymizeGroupContent')]]
-                </paper-item>
-                <paper-item hidden$="[[!hasGroupAccess]]" id="deleteContentMenuItem">[[t('deleteGroupContent')]]
-                </paper-item>
-                <paper-item id="addPostMenuItem">[[t('post.new')]]</paper-item>
-              </paper-listbox>
-            </paper-menu-button>
           </div>
-          <bn-news-actions class="actions" group="[[group]]"></bn-news-actions>
+          <bn-news-actions class="actions" user="[[user]]"></bn-news-actions>
         </div>
       </paper-material>
     </div>
-    <iron-media-query query="(max-width: 800px)" query-matches="{{narrowScreen}}"></iron-media-query>
-    <lite-signal on-lite-signal-got-admin-rights="_gotAdminRights"></lite-signal>
   </template>
 
   <script>
@@ -275,218 +241,23 @@
       properties: {
         user: {
           type: Object,
-          observer: '_groupChanged'
+          observer: '_userChanged'
         },
-
-        hasGroupAccess: {
-          type: Boolean,
-          value: false,
-          computed: '_hasGroupAccess(group, gotAdminRights)'
-        },
-
-        groupAccessText: {
-          type: String,
-          computed: '_groupAccessText(group, language)'
-        },
-
-        showMenuItem: {
-          type: Boolean,
-          value: false,
-          computed: '_showMenuItem(hasGroupAccess, group)'
-        },
-
-        groupVideoURL: {
-          type: String,
-          computed: '_groupVideoURL(group)'
-        }
       },
 
-      _pauseVideo: function () {
-        var videoPlayer = this.$$("#videoPlayer");
-        if (videoPlayer) {
-          videoPlayer.pause();
-        }
-      },
-
-      _groupVideoURL: function (group) {
-        if (group &&
-          group.configuration.useVideoCover &&
-          group.GroupLogoVideos &&
-          group.GroupLogoVideos.length > 0 &&
-          group.GroupLogoVideos[0].viewable) {
-          return group.GroupLogoVideos[0].formats[0]
-        } else {
-          return null;
-        }
-      },
-
-      _showMenuItem: function (hasGroupAccess, group) {
-        return hasGroupAccess || (group && group.configuration && group.configuration.canAddNewPosts === true)
-      },
-
-      _hasGroupAccess: function (group, gotAdminRights) {
-        if (group && gotAdminRights) {
-          return (this.checkGroupAccess(group) != null);
-        } else {
-          return false;
-        }
-      },
-
-      resetGroup: function () {
-        this.set('group', null);
-      },
-
-      _groupChanged: function (group) {
-        if (group && group.objectives && group.objectives.length > 220) {
+      _userChanged: function (user) {
+        if (user && user.objectives && user.objectives.length > 220) {
           this.$$("#objectives").style.fontSize = "15px";
         } else {
           this.$$("#objectives").style.fontSize = "16px";
         }
       },
 
-      _groupAccessText: function (group, language) {
-        if (group && language) {
-          switch (group.access) {
-            case 0: // Public
-              return this.t("group.public");
-              break;
-            case 1: // Closed
-              return this.t("group.closed");
-              break;
-            case 2: //Secert
-              return this.t("group.secret");
-              break;
-          }
-        } else {
-          return "";
+      _refresh: function (user) {
+        if (user) {
+          this.set('user', user);
         }
-      },
-
-      _menuSelection: function (event, detail) {
-        if (detail.item.id === "editMenuItem")
-          this._openEdit();
-        else if (detail.item.id === "newCategoryMenuItem")
-          this._openCategoryEdit();
-        else if (detail.item.id === "deleteMenuItem")
-          this._openDelete();
-        else if (detail.item.id === "usersMenuItem")
-          this._openUsersDialog();
-        else if (detail.item.id === "adminsMenuItem")
-          this._openAdminsDialog();
-        else if (detail.item.id === "pagesMenuItem")
-          this._openPagesDialog();
-        else if (detail.item.id === "addPostMenuItem")
-          this.fire('yp-post-new');
-        else if (detail.item.id === "deleteContentMenuItem")
-          this._openDeleteContent();
-        else if (detail.item.id === "anonymizeMenuItem")
-          this._openAnonymizeContent();
-        this.$$("paper-listbox").select(null);
-      },
-
-      _openPagesDialog: function () {
-        window.appGlobals.activity('open', 'group.pagesAdmin');
-        Polymer.dom(document).querySelector('yp-app').getDialogAsync("pagesGrid", function (dialog) {
-          dialog.setup(this.group.id, null, null, false);
-          dialog.open();
-        }.bind(this));
-      },
-
-      _openUsersDialog: function () {
-        window.appGlobals.activity('open', 'group.users');
-        Polymer.dom(document).querySelector('yp-app').getUsersGridAsync(function (dialog) {
-          dialog.setup(this.group.id, null, null, false);
-          dialog.open(this.group.name);
-        }.bind(this));
-      },
-
-      _openAdminsDialog: function () {
-        window.appGlobals.activity('open', 'group.admins');
-        Polymer.dom(document).querySelector('yp-app').getUsersGridAsync(function (dialog) {
-          dialog.setup(this.group.id, null, null, true);
-          dialog.open(this.group.name);
-        }.bind(this));
-      },
-
-      _openEdit: function () {
-        window.appGlobals.activity('open', 'group.edit');
-        Polymer.dom(document).querySelector('yp-app').getDialogAsync("groupEdit", function (dialog) {
-          this._refreshGroup(this.group.id, function (group) {
-            dialog.setup(group, false, this._refresh.bind(this));
-            dialog.open('edit', {groupId: group.id});
-          }.bind(this));
-        }.bind(this));
-      },
-
-      _refreshGroup: function (groupId, callback) {
-        var ajax = document.createElement('iron-ajax');
-        ajax.url = '/api/groups/' + groupId;
-        ajax.handleAs = 'json';
-        ajax.contentType = 'application/json';
-        ajax.body = {};
-        ajax.addEventListener('response', function (event, detail) {
-          callback(event.detail.response.group);
-        }.bind(this));
-        ajax.addEventListener('error', function (event, detail) {
-          console.error("Couldn't refresh grop");
-        }.bind(this));
-        ajax.generateRequest();
-      },
-
-      _openDelete: function () {
-        window.appGlobals.activity('open', 'group.delete');
-        Polymer.dom(document).querySelector('yp-app').getDialogAsync("apiActionDialog", function (dialog) {
-          dialog.setup('/api/groups/' + this.group.id,
-            this.t('groupDeleteConfirmation'),
-            this._onDeleted.bind(this));
-          dialog.open({finalDeleteWarning: true});
-        }.bind(this));
-      },
-
-      _openDeleteContent: function () {
-        window.appGlobals.activity('open', 'group.deleteContent');
-        Polymer.dom(document).querySelector('yp-app').getDialogAsync("apiActionDialog", function (dialog) {
-          dialog.setup('/api/groups/' + this.group.id + '/delete_content',
-            this.t('groupDeleteContentConfirmation'));
-          dialog.open({finalDeleteWarning: true});
-        }.bind(this));
-      },
-
-      _openAnonymizeContent: function () {
-        window.appGlobals.activity('open', 'group.anonymize');
-        Polymer.dom(document).querySelector('yp-app').getDialogAsync("apiActionDialog", function (dialog) {
-          dialog.setup('/api/groups/' + this.group.id + '/anonymize_content',
-            this.t('groupAnonymizeConfirmation'), null, this.t('anonymize'));
-          dialog.open({finalDeleteWarning: true});
-        }.bind(this));
-      },
-
-      _openCategoryEdit: function () {
-        window.appGlobals.activity('open', 'category.new');
-        Polymer.dom(document).querySelector('yp-app').getDialogAsync("categoryEdit", function (dialog) {
-          dialog.setup(this.group, true, this._refreshCategory.bind(this));
-          dialog.open("new", {groupId: this.group.id});
-        }.bind(this));
-      },
-
-      _refreshCategory: function (category) {
-        this.fire("update-group");
-      },
-
-      _onDeleted: function () {
-        this.dispatchEvent(new CustomEvent('yp-refresh-community', {bubbles: true, composed: true}));
-        this.redirectTo("/community/" + this.group.community_id);
-      },
-
-      _newCategory: function () {
-        this.$$("#newCategory").open('new', {groupId: this.group.id});
-      },
-
-      _refresh: function (group) {
-        if (group) {
-          this.set('group', group);
-        }
-        this.fire("update-group");
+        this.fire("update-user");
       }
     });
   </script>
