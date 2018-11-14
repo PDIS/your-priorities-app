@@ -201,30 +201,18 @@
           </tr>
           </tbody>
         </table>
-        <table>
-          <tbody>
-          <tr>
-            <td>
-              <yp-magic-text id="tags" class="groupTags"
-                             text-type="groupContent" content-language="[[group.language]]"
-                             content="[[groupTags]]" content-id="[[group.id]]">
-              </yp-magic-text>
+        <yp-magic-text id="tags" class="groupTags"
+                       text-type="groupContent" content-language="[[group.language]]"
+                       content="[[groupTags]]" content-id="[[group.id]]">
+        </yp-magic-text>
 
-              <!--<yp-magic-text id="objectives" class="objectives withPointer" on-tap="_goToGroup"-->
-              <!--text-type="groupContent" content-language="[[group.language]]"-->
-              <!--text-only content="[[groupObjectives]]" content-id="[[group.id]]" truncate="200">-->
-              <!--</yp-magic-text>-->
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div>
-                <span>50%</span> <span>[[t('group.trust_rate')]]</span>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+        <!--<yp-magic-text id="objectives" class="objectives withPointer" on-tap="_goToGroup"-->
+        <!--text-type="groupContent" content-language="[[group.language]]"-->
+        <!--text-only content="[[groupObjectives]]" content-id="[[group.id]]" truncate="200">-->
+        <!--</yp-magic-text>-->
+        <div>
+          <span>50%</span> <span>[[t('group.trust_rate')]]</span>
+        </div>
         <!--<yp-membership-button archived$="[[archived]]" group="[[group]]"></yp-membership-button>-->
         <bn-news-actions class="actions" group="[[group]]"></bn-news-actions>
       </paper-card>

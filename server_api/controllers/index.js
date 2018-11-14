@@ -30,7 +30,8 @@ let replaceForYrpri = function (data) {
   data = data.replace(/XdescriptionX/g, "Better news for better democracy");
   data = data.replace(/XlocaleOverrideX/g, process.env.YP_OVERRIDE_LOCALES_CLIENT_FOLDER);
   data = data.replace(/XappPrefixX/g, appPrefix);
-  return data.replace(/XmanifestPathX/g, "manifest_yp");
+  data = data.replace(/XmanifestPathX/g, "manifest_" + appPrefix);
+  return data;
 };
 
 let sendIndex = function (req, res) {
