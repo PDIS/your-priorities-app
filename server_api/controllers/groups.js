@@ -128,6 +128,7 @@ var updateGroupConfigParamters = function (req, group) {
   group.set('configuration.allowAnonymousUsers', truthValueFromBody(req.body.allowAnonymousUsers));
   group.set('configuration.allowAnonymousAutoLogin', truthValueFromBody(req.body.allowAnonymousAutoLogin));
 
+  group.set('configuration.iWasHere', truthValueFromBody(req.body.iWasHere));
   group.set('configuration.hideAllTabs', truthValueFromBody(req.body.hideAllTabs));
   group.set('configuration.hideNewPostOnPostPage', truthValueFromBody(req.body.hideNewPostOnPostPage));
   group.set('configuration.newPointOptional', truthValueFromBody(req.body.newPointOptional));

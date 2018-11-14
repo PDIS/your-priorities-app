@@ -157,7 +157,11 @@
         <input type="hidden" name="uploadedHeaderImageId" value="[[uploadedHeaderImageId]]">
       </div>
 
-      <div hidden class="NewsReportDontTheseSoJustHide">
+      <div class="layout vertical config">
+        <paper-checkbox name="iWasHere" checked$="{{iWasHere}}">[[t('group.i_was_here')]]</paper-checkbox>
+      </div>
+
+      <div hidden class="NewsReportDoNotUseTheseSoJustHide">
         <div class="layout vertical">
           <div class="layout vertical config">
             <yp-theme-selector object="[[group]]" selected-theme="{{themeId}}"></yp-theme-selector>
@@ -463,6 +467,7 @@
         value: false
       },
 
+      iWasHere: Boolean,
       hideAllTabs: Boolean,
       hideNewPostOnPostPage: Boolean,
       newPointOptional: Boolean,
@@ -677,6 +682,7 @@
           this.set('endorsementButtons', "hearts");
         }
 
+        this._setFromConfiguration('iWasHere');
         this._setFromConfiguration('locationHidden');
         this._setFromConfiguration('hideAllTabs');
         this._setFromConfiguration('hideNewPostOnPostPage');
