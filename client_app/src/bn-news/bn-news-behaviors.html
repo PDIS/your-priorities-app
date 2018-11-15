@@ -43,6 +43,11 @@
         computed: '_groupObjectives(group)'
       },
 
+      trustRate: {
+        type: Number,
+        computed: '_trustRate(group)'
+      },
+
       noImage: {
         type: Boolean,
         value: true
@@ -130,6 +135,11 @@
                 }
               });
           }
+
+          var rate = Math.floor(Math.random() * 100) + "%";
+          this.$$('.trustBar').style.width = rate;
+          this.$$('.indicator').style.left = 'calc(' + rate + '-24px)';
+          this.$$('.trustRate').innerHTML = rate;
         });
       } else {
         this.set('featured', false);
@@ -189,6 +199,10 @@
       } else {
         return "";
       }
+    },
+
+    _trustRate: function (group) {
+      return 40;
     },
 
     _groupCreator: function (group) {
