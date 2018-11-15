@@ -1,3 +1,9 @@
+# Better News short modification notice
+- The root path will be redirect to `/community/1`, but in a new instance there's no community in it. Thus, you need to go to `/domain/1` and create a community first. (This should be done automatically in the future)
+- The community edit feature is gone (Since the community level is quite a dummy now).
+- `amazon-keys.env.template` should be renamed without `.template` and fill the keys.
+- This is a docker implementation, should be easy to fixed to linux native, but I don't have the idea about `Heroku`.
+
 # Your Priorities Version 7
 
 ![alt text](https://citizens.is/wp-content/uploads/2018/08/Capture-2.png "Your Priorities screenshot")
