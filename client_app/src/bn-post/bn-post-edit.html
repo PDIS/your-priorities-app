@@ -316,6 +316,10 @@
             </div>
           </section>
         </iron-pages>
+        <div class="layout vertical config">
+          <paper-checkbox name="i_was_here" checked$="{{post.i_was_here}}">[[t('group.i_was_here')]]</paper-checkbox>
+        </div>
+
         <input type="hidden" name="location" value="[[encodedLocation]]">
         <input type="hidden" name="coverMediaType" value="[[selectedCoverMediaType]]">
         <input type="hidden" name="uploadedHeaderImageId" value="[[uploadedHeaderImageId]]">

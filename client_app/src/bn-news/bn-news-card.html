@@ -158,31 +158,53 @@
         display: none !important;
       }
 
-      #author_name{
-      font-weight: bold;
-      } 
-      #newInformation, .groupTags, #trustRate{
-      padding: 10px;
-      }
-
-      #trustRate{
+      #author_name {
         font-weight: bold;
       }
+
+      #newInformation, .groupTags, #trustRate {
+        padding: 10px;
+      }
+
+      #trustRate {
+        font-weight: bold;
+      }
+
+      .cardImage {
+      }
+
+      .indicator {
+        width: 36px;
+        height: 36px;
+        position: absolute;
+        top: 43%;
+      }
+
+      .trustBar {
+        width: 50%;
+        height: 5px;
+        background-color: lightseagreen;
+      }
+
     </style>
 
     <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
 
     <template is="dom-if" if="[[group]]">
       <paper-card class="groupCard" animated elevation="[[elevation]]">
-        <template is="dom-if" if="[[noImage]]">
-          <iron-image header-mode$="[[headerMode]]" archived$="[[archived]]" sizing="cover"
-                      class="main-image withPointer" src="https://i.imgur.com/sdsFAoT.png"
-                      on-tap="_goToGroup"></iron-image>
-        </template>
-        <template is="dom-if" if="[[!noImage]]">
-          <iron-image archived$="[[archived]]" class="logo withPointer" sizing="cover" on-tap="_goToGroup" preload
-                      src="[[groupLogoImagePath]]"></iron-image>
-        </template>
+        <div>
+          <template is="dom-if" if="[[noImage]]">
+            <iron-image header-mode$="[[headerMode]]" archived$="[[archived]]" sizing="cover"
+                        class="main-image withPointer cardImage" src="https://i.imgur.com/sdsFAoT.png"
+                        on-tap="_goToGroup"></iron-image>
+          </template>
+          <template is="dom-if" if="[[!noImage]]">
+            <iron-image archived$="[[archived]]" class="logo withPointer cardImage" sizing="cover" on-tap="_goToGroup" preload
+                        src="[[groupLogoImagePath]]"></iron-image>
+          </template>
+          <svg class="indicator" xmlns="http://www.w3.org/2000/svg" fill="#20B2AA" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2c3.86 0 7 3.14 7 7 0 5.25-7 13-7 13S5 14.25 5 9c0-3.86 3.14-7 7-7zm-1.53 12L17 7.41 15.6 6l-5.13 5.18L8.4 9.09 7 10.5l3.47 3.5z"/><path fill="none" d="M0 0h24v24H0V0z"/></svg>
+          <div class="trustBar"></div>
+        </div>
         <table id="newInformation">
           <tbody>
           <tr>

@@ -67,11 +67,11 @@
     <yp-page id="page" create-fab-icon="[[createFabIcon]]" create-fab-title="[[t('group.add')]]" on-yp-create-fab-tap="_newGroup">
 
       <template is="dom-if" if="[[useAlternativeHeader]]">
-        <yp-community-header id="communityCard" slot="largeCard" class="largeCard card" community="[[community]]" on-update-community="_refreshAjax"></yp-community-header>
+        <yp-community-header hidden id="communityCard" slot="largeCard" class="largeCard card" community="[[community]]" on-update-community="_refreshAjax"></yp-community-header>
       </template>
 
       <template is="dom-if" if="[[useNormalHeader]]">
-        <yp-community-large-card id="communityCard" slot="largeCard" class="largeCard card" community="[[community]]" on-update-community="_refreshAjax"></yp-community-large-card>
+        <yp-community-large-card hidden id="communityCard" slot="largeCard" class="largeCard card" community="[[community]]" on-update-community="_refreshAjax"></yp-community-large-card>
       </template>
 
       <paper-tabs id="paper_tabs" apple$="[[isOldiOs]]" slot="tabs" class="tabs" selected="{{selectedTab}}" attr-for-selected="name" focused>

@@ -29,7 +29,7 @@ module.exports = function(sequelize, DataTypes) {
     cover_media_type: DataTypes.STRING,
     legacy_post_id: DataTypes.INTEGER,
     user_interaction_profile: DataTypes.JSONB,
-    language: { type: DataTypes.STRING, allowNull: true }
+    language: { type: DataTypes.STRING, allowNull: true },
   }, {
     defaultScope: {
       where: {

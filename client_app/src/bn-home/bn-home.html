@@ -26,6 +26,9 @@
 <link rel="import" href="../yp-group/yp-group-collection-behaviors.html">
 <link rel="import" href="../bn-news/bn-news-grid.html">
 
+<!--<link rel="import" href="yp-community-header.html">-->
+<!--<link rel="import" href="yp-community-large-card.html">-->
+
 <dom-module id="bn-home">
   <template>
     <style include="iron-flex iron-flex-alignment">
@@ -64,6 +67,14 @@
         display: none !important;
       }
     </style>
+
+    <!--<template is="dom-if" if="[[useAlternativeHeader]]">-->
+      <!--<yp-community-header id="communityCard" slot="largeCard" class="largeCard card" community="[[community]]" on-update-community="_refreshAjax"></yp-community-header>-->
+    <!--</template>-->
+
+    <!--<template is="dom-if" if="[[useNormalHeader]]">-->
+      <!--<yp-community-large-card id="communityCard" slot="largeCard" class="largeCard card" community="[[community]]" on-update-community="_refreshAjax"></yp-community-large-card>-->
+    <!--</template>-->
 
     <bn-page id="page" create-fab-icon="[[createFabIcon]]" create-fab-title="[[t('group.add')]]" on-yp-create-fab-tap="_newGroup">
 

@@ -396,7 +396,7 @@
           if (post.Group.configuration && post.Group.configuration.endorsementButtons!=undefined) {
             this.set('endorsementButtons', post.Group.configuration.endorsementButtons);
           } else {
-            this.set('endorsementButtons', "hearts");
+            this.set('endorsementButtons', "arrows");
           }
           if (post.Group.configuration) {
             this.set('post.Group.configuration.originalHideVoteCount', post.Group.configuration.hideVoteCount);
@@ -428,6 +428,8 @@
       },
 
       endorseModeIcon: function (endorsementButtons, upDown) {
+        // FIXME: Use fixed arrow buttons for demo
+        endorsementButtons = 'arrows';
         if (endorsementButtons!="hearts" && endorsementButtons!="hats") {
           this.set('smallerIcons', true);
         } else {
@@ -464,6 +466,8 @@
           this.set('post.Group.configuration.hideVoteCount', false);
         }
 
+        // FIXME: Use fixed arrow buttons for demo
+        endorsementButtons = 'arrows';
         if (this.endorsementButtons=='hearts') {
           if (value > 0) {
             this.$.actionUp.className += ' ' + 'hearts-up-selected';
